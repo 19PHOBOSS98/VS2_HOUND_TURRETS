@@ -31,6 +31,11 @@ function ShipReaderSP:getMass()
 	return self.ship.mass
 end
 
+function ShipReaderSP:getShipYardCenterOfMass()
+	local com = self.ship.center_of_mass_in_a_ship
+	return vector.new(com.x,com.y,com.z)
+end
+
 function ShipReaderSP:getInertiaTensors()
 	local moi = self.ship.moment_of_inertia_tensor
 	local m = matrix(
@@ -50,6 +55,18 @@ function ShipReaderSP:getInertiaTensors()
 		y=vector.new(inv_m[2][1],inv_m[2][2],inv_m[2][3]),
 		z=vector.new(inv_m[3][1],inv_m[3][2],inv_m[3][3])
 	}
+	return {it,inv_it}
+end
+
+function ShipReaderSP:getInertiaMatrix()
+	local moi = self.ship.moment_of_inertia_tensor
+	local it = matrix(
+			{	
+				{moi[1.0][1.0],moi[1.0][2.0],moi[1.0][3.0]},
+				{moi[2.0][1.0],moi[2.0][2.0],moi[2.0][3.0]},
+				{moi[3.0][1.0],moi[3.0][2.0],moi[3.0][3.0]},
+			})
+	local inv_it = matrix.invert(it)
 	return {it,inv_it}
 end
 

@@ -66,6 +66,10 @@ function utilities.roundTo_vector3(value,place)
 	return vector.new(math.floor(value.x * place)/place,math.floor(value.y * place)/place,math.floor(value.z * place)/place)
 end
 
+function utilities.round(value)
+	return math.floor(value + 0.5)
+end
+
 function utilities.round_vector3(value)
 	return vector.new(math.floor(value.x + 0.5),math.floor(value.y + 0.5),math.floor(value.z + 0.5))
 end
@@ -100,9 +104,52 @@ function utilities.pwm()
 	return{
 	last_output_float_error=vector.new(0,0,0),
 	run=function(self,rs)
-		pid_out_w_error = rs:add(self.last_output_float_error)
+		local pid_out_w_error = rs:add(self.last_output_float_error)
 		output = utilities.round_vector3(pid_out_w_error)
 		self.last_output_float_error = pid_out_w_error:sub(output)
+		return output
+	end
+	}
+end
+
+function utilities.PwmScalar()
+	return{
+	last_output_float_error=0,
+	run=function(self,rs)
+		local pid_out_w_error = rs+self.last_output_float_error
+		output = utilities.round(pid_out_w_error)
+		self.last_output_float_error = pid_out_w_error-output
+		return output
+	end
+	}
+end
+function utilities.PwmMatrix(init_row,init_column)
+	return{
+	last_output_float_error=matrix(init_row,init_column,0),
+	run=function(self,rs_matrix)
+		local pid_out_w_error = matrix.add(rs_matrix,self.last_output_float_error)
+		local output = matrix.roundClone(pid_out_w_error,0)
+		self.last_output_float_error = matrix.sub(pid_out_w_error,output)
+		return output
+	end
+	}
+end
+
+function utilities.PwmMatrixList(list_size)
+	local l = {}
+	for i=1,list_size do
+		l[i]=0
+	end
+	return{
+	last_output_float_error=l,
+	run=function(self,rs_matrix)--expects 1 column matrix
+		local pid_out_w_error={}
+		local output = {}
+		for i=1,#rs_matrix do
+			pid_out_w_error[i] = rs_matrix[i][1]+self.last_output_float_error[i]
+			output[i] = utilities.round(pid_out_w_error[i])
+			self.last_output_float_error[i] = pid_out_w_error[i]-output[i]
+		end
 		return output
 	end
 	}

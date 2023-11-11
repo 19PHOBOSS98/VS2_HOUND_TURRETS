@@ -29,7 +29,7 @@ function TenThrusterTemplateHorizontalCompact:init(instance_configs)
 	
 	configs.ship_constants_config.MOD_CONFIGURED_THRUSTER_SPEED = configs.ship_constants_config.MOD_CONFIGURED_THRUSTER_SPEED or 10000
 	
-	configs.ship_constants_config.THRUSTER_TIER = configs.ship_constants_config.THRUSTER_TIER or 2
+	configs.ship_constants_config.THRUSTER_TIER = configs.ship_constants_config.THRUSTER_TIER or 5
 	
 	configs.ship_constants_config.PID_SETTINGS = configs.ship_constants_config.PID_SETTINGS or
 	{
@@ -106,7 +106,20 @@ function TenThrusterTemplateHorizontalCompact:composeComponentMessage(linear,ang
 	local STERN_CCB = clamp(ccb_common+rot_yn_xn,0,15)
 	local STERN_CR = clamp(cr_common+rot_yn_xp,0,15)
 	local STERN_CL = clamp(cl_common+rot_yp_xn,0,15)
-
+--[[
+	self:debugProbe({
+	BOW_F3=BOW_F,
+	BOW_CCT=BOW_CCT,
+	BOW_CCB=BOW_CCB,
+	BOW_CR=BOW_CR,
+	BOW_CL=BOW_CL,
+	STERN_B=STERN_B,
+	STERN_CCT=STERN_CCT,
+	STERN_CCB=STERN_CCB,
+	STERN_CR=STERN_CR,
+	STERN_CL=STERN_CL,
+	})
+]]--
 	return {
 	BOW={BOW_F,BOW_CCT,BOW_CCB,BOW_CL,BOW_CR},
 	STERN={STERN_B,STERN_CCT,STERN_CCB,STERN_CL,STERN_CR}}

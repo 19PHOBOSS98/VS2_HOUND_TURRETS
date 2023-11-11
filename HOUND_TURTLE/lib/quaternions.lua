@@ -477,7 +477,7 @@ end
 --FOR VS2-COMPUTERS UPDATE: INERTIA TENSORS --
 --https://gamedev.stackexchange.com/questions/140860/transform-inertia-tensor-using-quaternion--
 --[[
-	tensor = {
+	tensor = { --LEGACY CODE: before I added the matrix.lua library
 	x = vector.new(x,y,z),
 	y = vector.new(x,y,z),
 	z = vector.new(x,y,z),
@@ -508,6 +508,30 @@ function Quaternion.rotateTensor(tensor,new_rotation)
 		x=vector.new(rrr1.x,rrr2.x,rrr3.x),
 		y=vector.new(rrr1.y,rrr2.y,rrr3.y),
 		z=vector.new(rrr1.z,rrr2.z,rrr3.z)
+	}
+end
+
+function Quaternion.rotateMatrix(matrix,new_rotation)
+	c1 = vector.new(matrix[1][1],matrix[2][1],matrix[3][1]);
+	c2 = vector.new(matrix[1][2],matrix[2][2],matrix[3][2]);
+	c3 = vector.new(matrix[1][3],matrix[2][3],matrix[3][3]);
+	
+	cc1 = new_rotation:inv():rotateVector3(c1);
+	cc2 = new_rotation:inv():rotateVector3(c2);
+	cc3 = new_rotation:inv():rotateVector3(c3);
+	
+	rr1 = vector.new(cc1.x,cc2.x,cc3.x);
+	rr2 = vector.new(cc1.y,cc2.y,cc3.y);
+	rr3 = vector.new(cc1.z,cc2.z,cc3.z);
+	
+	rrr1 = new_rotation:inv():rotateVector3(rr1);
+	rrr2 = new_rotation:inv():rotateVector3(rr2);
+	rrr3 = new_rotation:inv():rotateVector3(rr3);
+	
+	return {
+		{rrr1.x,rrr2.x,rrr3.x},
+		{rrr1.y,rrr2.y,rrr3.y},
+		{rrr1.z,rrr2.z,rrr3.z}
 	}
 end
 --FOR VS2-COMPUTERS UPDATE: INERTIA TENSORS --

@@ -205,8 +205,6 @@ function DroneBaseClass:initRemoteControl(configs)
 		end
 		return self.rc_variables.run_mode
 	end
-	
-	
 end
 
 function DroneBaseClass:initSensors()
@@ -237,8 +235,31 @@ function DroneBaseClass:initVariables()
 	self.position_error = vector.new(0,0,0)
 end
 
+function DroneBaseClass:getInertiaTensors()
+	return self.sensors.shipReader:getInertiaTensors()
+end
+
+function DroneBaseClass:rotateInertiaTensors()
+	--[[
+	"tensor" = {
+	x = vector.new(x,y,z),
+	y = vector.new(x,y,z),
+	z = vector.new(x,y,z),
+	}
+	--NOTE: this isn't what "TENSOR" actually look like I just found it convenient to call these 3xvector3 arrays like this
+	]]--
+	self.ship_constants.LOCAL_INERTIA_TENSOR = quaternion.rotateTensor(
+												self.ship_constants.LOCAL_INERTIA_TENSOR,
+												self.ship_constants.DEFAULT_NEW_LOCAL_SHIP_ORIENTATION)
+
+	self.ship_constants.LOCAL_INV_INERTIA_TENSOR = quaternion.rotateTensor(
+													self.ship_constants.LOCAL_INV_INERTIA_TENSOR,
+													self.ship_constants.DEFAULT_NEW_LOCAL_SHIP_ORIENTATION)
+
+end
+
 function DroneBaseClass:initConstants(ship_constants_config)
-	local inertia_tensors = self.sensors.shipReader:getInertiaTensors()
+	local inertia_tensors = self:getInertiaTensors()
 
 	self.ship_constants = {
 	
@@ -311,7 +332,10 @@ function DroneBaseClass:initConstants(ship_constants_config)
 		if (self.ship_constants[constant_name]~=nil) then
 			self.ship_constants[constant_name] = new_value
 		end
-	end	
+	end
+	
+	self:rotateInertiaTensors()
+	
 end
 
 function DroneBaseClass:initModemChannels(channels_config)
@@ -419,7 +443,6 @@ function DroneBaseClass:resetRedstone()
 end
 
 function DroneBaseClass:applyRedStonePower(lin_mv,rot_mv)
-	
 	--Redstone signal for linear movement p==positive, n==negative--
 	local linear = {
 		lin_x_p = max(0,lin_mv.x),
@@ -438,10 +461,9 @@ function DroneBaseClass:applyRedStonePower(lin_mv,rot_mv)
 		rot_z_p = max(0,rot_mv.z),
 		rot_z_n = abs(min(0,rot_mv.z))
 	}
-	
 	local component_control_msg = self:composeComponentMessage(linear,angular)
 	
-	self:communicateWithComponent(component_control_msg)
+	--self:communicateWithComponent(component_control_msg)
 end
 --REDSTONE FUNCTIONS--
 
@@ -641,10 +663,10 @@ function DroneBaseClass:calculateMovement()
 	self.ship_constants.LOCAL_INV_INERTIA_TENSOR = quaternion.rotateTensor(self.sensors.shipReader.getInverseInertiaTensor(),self.ship_constants.DEFAULT_NEW_LOCAL_SHIP_ORIENTATION)
 	]]--
 	-- USE WHEN VS2-COMPUTERS UPDATE RELEASES --
-	
+	--[[
 	self.ship_constants.LOCAL_INERTIA_TENSOR = quaternion.rotateTensor(self.ship_constants.LOCAL_INERTIA_TENSOR,self.ship_constants.DEFAULT_NEW_LOCAL_SHIP_ORIENTATION)
 	self.ship_constants.LOCAL_INV_INERTIA_TENSOR = quaternion.rotateTensor(self.ship_constants.LOCAL_INV_INERTIA_TENSOR,self.ship_constants.DEFAULT_NEW_LOCAL_SHIP_ORIENTATION)
-	
+	]]--
 
 	--[[
 	for future drones, thrusters might be facing the opposite direction to the perpendicular vector, 
@@ -658,6 +680,8 @@ function DroneBaseClass:calculateMovement()
 	torque_saturation.x = thruster_distances_from_axes.x * (max_perpendicular_force.x)
 	torque_saturation.y = thruster_distances_from_axes.y * (max_perpendicular_force.y)
 	torque_saturation.z = thruster_distances_from_axes.z * (max_perpendicular_force.z)
+	
+	self:debugProbe({thruster_distances_from_axes=thruster_distances_from_axes})
 	
 	local max_angular_acceleration = vector.new(0,0,0)
 	max_angular_acceleration.x = torque_saturation:dot(self.ship_constants.LOCAL_INV_INERTIA_TENSOR.x)
@@ -684,6 +708,7 @@ function DroneBaseClass:calculateMovement()
 													self.ship_constants.PID_SETTINGS.ROT.Z.I,
 													self.ship_constants.PID_SETTINGS.ROT.Z.D,
 													-max_angular_acceleration.z,max_angular_acceleration.z)
+	--self:debugProbe({LEGACY_max_angular_acceleration=max_angular_acceleration})
 	--[[
 	local pos_PID = pidcontrollers.PID_Discrete_Vector(	self.ship_constants.PID_SETTINGS.POS.P,
 											self.ship_constants.PID_SETTINGS.POS.I,
@@ -728,16 +753,19 @@ function DroneBaseClass:calculateMovement()
 		
 		--FOR ANGULAR MOVEMENT--
 		self.rotation_error = getQuaternionRotationError(self.target_rotation,self.ship_rotation)
-		
+		--self:debugProbe({LEGACY_rotation_error=self.rotation_error})
 		local pid_output_angular_acceleration = vector.new(0,0,0)
 		pid_output_angular_acceleration.x = rot_x_PID:run(self.rotation_error.x)
 		pid_output_angular_acceleration.y = rot_y_PID:run(self.rotation_error.y)
 		pid_output_angular_acceleration.z = rot_z_PID:run(self.rotation_error.z)
-		
+		--self:debugProbe({LEGACY_ang_acc_pid=pid_output_angular_acceleration})
 		local net_torque = vector.new(0,0,0)
 		net_torque.x = pid_output_angular_acceleration:dot(self.ship_constants.LOCAL_INERTIA_TENSOR.x)
 		net_torque.y = pid_output_angular_acceleration:dot(self.ship_constants.LOCAL_INERTIA_TENSOR.y)
 		net_torque.z = pid_output_angular_acceleration:dot(self.ship_constants.LOCAL_INERTIA_TENSOR.z)
+		
+		--self:debugProbe({LEGACY_IT=self.ship_constants.LOCAL_INERTIA_TENSOR})
+		--self:debugProbe({net_torque=net_torque})
 		
 		local calculated_angular_RS_PID = net_torque
 		
@@ -753,13 +781,15 @@ function DroneBaseClass:calculateMovement()
 		
 		local local_gravity_acceleration = self.ship_rotation:inv():rotateVector3(gravity_acceleration_vector)
 		local net_linear_acceleration = pid_output_linear_acceleration:sub(local_gravity_acceleration)
-
+	
 		local calculated_linear_RS_PID = net_linear_acceleration
+		
 		calculated_linear_RS_PID.x = calculated_linear_RS_PID.x*linear_acceleration_to_redstone_coefficient.x
 		calculated_linear_RS_PID.y = calculated_linear_RS_PID.y*linear_acceleration_to_redstone_coefficient.y
 		calculated_linear_RS_PID.z = calculated_linear_RS_PID.z*linear_acceleration_to_redstone_coefficient.z
 		
 		calculated_linear_RS_PID = linear_pwm:run(calculated_linear_RS_PID)
+		
 		--self:debugProbe({calculated_angular_RS_PID=calculated_angular_RS_PID})
 		self:applyRedStonePower(calculated_linear_RS_PID,calculated_angular_RS_PID)
 		sleep(min_time_step)

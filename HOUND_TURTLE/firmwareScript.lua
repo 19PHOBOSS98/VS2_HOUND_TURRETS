@@ -1,7 +1,8 @@
 local HoundTurretBaseCreateVault = require "lib.tilt_ships.HoundTurretBaseCreateVault"
---local HoundTurretCreateVault8Barrel = require "lib.tilt_ships.HoundTurretCreateVault8Barrel"
+local HoundTurretCreateVault8Barrel = require "lib.tilt_ships.HoundTurretCreateVault8Barrel"
 local HoundTurretInfiniteAmmo12Barrel = require "lib.tilt_ships.HoundTurretInfiniteAmmo12Barrel"
---local TenThrusterTemplateHorizontalCompact = require "lib.tilt_ships.TenThrusterTemplateHorizontalCompact"
+local TenThrusterTemplateHorizontalCompact = require "lib.tilt_ships.TenThrusterTemplateHorizontalCompact"
+local TenThrusterTemplateHorizontalCompactSP = require "lib.tilt_ships.TenThrusterTemplateHorizontalCompactSP"
 local instance_configs = {
 	radar_config = {
 		designated_ship_id = "82",
@@ -32,7 +33,8 @@ local instance_configs = {
 	},
 }
 
-local drone = HoundTurretBaseCreateVault(instance_configs)
+local drone = TenThrusterTemplateHorizontalCompactSP(instance_configs)
+--local drone = HoundTurretBaseCreateVault(instance_configs)
 --local drone = HoundTurretCreateVault8Barrel(instance_configs)
 --local drone = HoundTurretInfiniteAmmo12Barrel(instance_configs)
 drone:run()

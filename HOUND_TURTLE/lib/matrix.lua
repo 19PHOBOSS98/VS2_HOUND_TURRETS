@@ -228,7 +228,11 @@ function matrix.mul( m1, m2 )
 		for j = 1,#m2[1] do
 			local num = m1[i][1] * m2[1][j]
 			for n = 2,#m1[1] do
-				num = num + m1[i][n] * m2[n][j]
+				--print(n,":",j,"|",m2[n][j])
+				num = 
+					num + 
+						m1[i][n] 
+							* m2[n][j]
 			end
 			mtx[i][j] = num
 		end
@@ -678,6 +682,19 @@ function matrix.round( mtx, idp )
 		end
 	end
 	return mtx
+end
+--//PHOBOSS I need it...//--
+function matrix.roundClone( m, idp )
+	local mtx = {}
+	local mult = 10^( idp or 0 )
+	local fround = matrix.type( m ) == "number" and numround or tround
+	for i = 1,#m do
+		mtx[i] = {}
+		for j = 1,#m[1] do
+			mtx[i][j] = fround(m[i][j],mult)
+		end
+	end
+	return setmetatable( mtx, matrix_meta )
 end
 
 --// matrix.random( mtx [,start] [, stop] [, idip] )
