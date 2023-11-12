@@ -41,9 +41,10 @@ function SomePeripheralsGoggle:getDistance()
 	if (self.use_external_goggle_port) then
 		return self.prev_distance
 	end
-	
+
 	for k, v in pairs(self.peripheral.getConnected()) do
-		local item = v.raycast(max_distance, {0, 0, 1}, euler_mode, true, cache,true)
+		local item = v.raycast(self.max_distance, {0, 0, 1}, false, true, false, true)
+		print(textutils.serialize(item))
 		if (item.distance) then
 			self:updatePrevDistance(item.distance)
 		end

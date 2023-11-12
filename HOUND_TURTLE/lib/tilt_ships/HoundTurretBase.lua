@@ -289,7 +289,6 @@ end
 function HoundTurretBase:overrideShipFrameCustomProtocols()
 	local htb = self
 	function self.ShipFrame:customProtocols(msg)
-		self:debugProbe({msg=msg})
 		local command = msg.cmd
 		command = command and tonumber(command) or command
 		case =
@@ -405,7 +404,9 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 						local aim_z = vector.new()
 						
 						local range = htb:getManualRange(htb:getRangeFindingMode())
+					
 						--self:debugProbe({getRangeFindingMode = htb:getRangeFindingMode(),range=range})
+						
 						if (aim_target_mode == orbit_target_mode) then
 							
 							aim_z = target_orbit_orientation:localPositiveZ()

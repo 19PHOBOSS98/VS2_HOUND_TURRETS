@@ -24,10 +24,6 @@ function SensorsSP:init(configs)
 
 end
 
-function SensorsSP:getDistance()
-	return self.goggle:getDistance()
-end
-
 function SensorsSP:getInertiaTensors()
 	return self.shipReader:getInertiaTensors()
 end
