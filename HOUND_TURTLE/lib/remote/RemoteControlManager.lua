@@ -70,7 +70,7 @@ function RemoteControlManager:protocols(msg)
 			self.rc_variables.orbit_offset = pos_vec
 		end,
 		["set_settings"] = function (msg)
-			if (tostring(msg.drone_type) == tostring(self.ship_constants.DRONE_TYPE)) then
+			if (tostring(msg.drone_type) == tostring(self.DRONE_TYPE)) then
 				self:setSettings(msg.args)
 			end
 		end,

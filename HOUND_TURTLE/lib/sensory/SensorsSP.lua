@@ -5,7 +5,7 @@ local player_spatial_utilities = require "lib.player_spatial_utilities"
 
 local ShipReader = require "lib.sensory.ShipReaderSP"
 local SomePeripheralsRadar = require "lib.sensory.SomePeripheralsRadar"
---local SomePeripheralsGoggle = require "lib.sensory.SomePeripheralsGoggle"
+local SomePeripheralsGoggle = require "lib.sensory.SomePeripheralsGoggle"
 
 local Sensors = require "lib.sensory.Sensors"
 
@@ -15,17 +15,37 @@ local getPlayerHeadOrientation = player_spatial_utilities.getPlayerHeadOrientati
 
 local SensorsSP = Sensors:subclass()
 
-function SensorsSP:init()
+function SensorsSP:init(configs)
 	SensorsSP.superClass.init(self)
 	
 	self.shipReader = ShipReader()
 	self.radar = SomePeripheralsRadar()
-	--self.goggle = SomePeripheralsGoggle()
+	self.goggle = SomePeripheralsGoggle(configs)
 
+end
+
+function SensorsSP:getDistance()
+	return self.goggle:getDistance()
 end
 
 function SensorsSP:getInertiaTensors()
 	return self.shipReader:getInertiaTensors()
+end
+
+function SensorsSP:customUpdateLoop()
+	self.goggle:listenToExternalPort()
+end
+
+function SensorsSP:useExternalRangeGoggle(mode)
+	self.goggle:useExternal(mode)
+end
+
+function SensorsSP:isUsingExternalRangeGoggle()
+	return self.goggle:isUsingExternal()
+end
+
+function SensorsSP:getGoggleRange()
+	return self.goggle:getDistance()
 end
 
 function SensorsSP:RadarSystems(radar_arguments)
@@ -68,8 +88,7 @@ function SensorsSP:RadarSystems(radar_arguments)
 								]]--
 								
 								player = self.targeting:getPlayerTarget(is_auto_aim)
-								
-								if (player and next(player) ~= nil) then
+								if (player) then
 									self.targeted_players_undetected = false
 									local eye_position = player.eye_pos
 									local current_position = vector.new(eye_position[1],

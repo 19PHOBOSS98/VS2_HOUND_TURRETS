@@ -4,7 +4,7 @@ local pidcontrollers = require "lib.pidcontrollers"
 local targeting_utilities = require "lib.targeting_utilities"
 local player_spatial_utilities = require "lib.player_spatial_utilities"
 local flight_utilities = require "lib.flight_utilities"
-local RemoteControlManager = require "lib.tilt_ships.RemoteControlManager"
+local RemoteControlManager = require "lib.remote.RemoteControlManager"
 
 local Sensors = require "lib.sensory.Sensors"
 
@@ -99,7 +99,7 @@ end
 --INITIALIZATION FUNCTIONS--
 function DroneBaseClass:init(configs)
 	DroneBaseClass.superClass.init(self)
-	self:initPeripherals()
+	self:initPeripherals(configs)
 	self:initVariables()
 	self:initConstants(configs.ship_constants_config)
 	self:initModemChannels(configs.channels_config)
@@ -207,12 +207,12 @@ function DroneBaseClass:initRemoteControl(configs)
 	end
 end
 
-function DroneBaseClass:initSensors()
-	self.sensors = Sensors()
+function DroneBaseClass:initSensors(configs)
+	self.sensors = Sensors(configs)
 end
 
-function DroneBaseClass:initPeripherals()
-	self:initSensors()
+function DroneBaseClass:initPeripherals(configs)
+	self:initSensors(configs)
 	self.modem = peripheral.find("modem", function(name, object) return object.isWireless() end)
 end
 
@@ -349,6 +349,7 @@ function DroneBaseClass:initModemChannels(channels_config)
 		REPLY_DUMP_CHANNEL = 0,
 		EXTERNAL_AIM_TARGETING_CHANNEL = 0,--transmit targeting information from external radar system
 		EXTERNAL_ORBIT_TARGETING_CHANNEL = 0,
+		EXTERNAL_GOGGLE_PORT_CHANNEL = 0,
 	}
 	
 	for channel_name,new_channel in pairs(channels_config) do
@@ -474,6 +475,14 @@ function DroneBaseClass:debugProbe(msg)--transmits to debug channel
 	self.modem.transmit(self.com_channels.DRONE_TO_DEBUG_CHANNEL, self.com_channels.REPLY_DUMP_CHANNEL, msg)
 end
 
+--[[
+--SAMPLE: Transmit from controller to this drone
+modem.transmit(
+	self.com_channels.REMOTE_TO_DRONE_CHANNEL, 
+	self.com_channels.DRONE_TO_REMOTE_CHANNEL,
+	{drone_id=drone,msg={cmd=cmd,args=args}}
+	)
+]]--
 function DroneBaseClass:protocols(msg)
 	local command = msg.cmd
 	command = command and tonumber(command) or command
@@ -541,7 +550,17 @@ end
 
 
 --THREAD FUNCTIONS--
+
 function DroneBaseClass:receiveCommand()
+	--[[
+	--SAMPLE-- 
+	--Transmit from controller to this drone
+	modem.transmit(
+		self.com_channels.REMOTE_TO_DRONE_CHANNEL, 
+		self.com_channels.DRONE_TO_REMOTE_CHANNEL,
+		{drone_id=drone,msg={cmd=cmd,args=args}}
+		)
+	]]--
 	while self.run_firmware do
 		local event, modemSide, senderChannel, replyChannel, message, senderDistance = os.pullEvent("modem_message")
 		if (senderChannel==self.com_channels.REMOTE_TO_DRONE_CHANNEL or senderChannel==self.com_channels.DEBUG_TO_DRONE_CHANNEL) then
@@ -681,7 +700,7 @@ function DroneBaseClass:calculateMovement()
 	torque_saturation.y = thruster_distances_from_axes.y * (max_perpendicular_force.y)
 	torque_saturation.z = thruster_distances_from_axes.z * (max_perpendicular_force.z)
 	
-	self:debugProbe({thruster_distances_from_axes=thruster_distances_from_axes})
+	--self:debugProbe({thruster_distances_from_axes=thruster_distances_from_axes})
 	
 	local max_angular_acceleration = vector.new(0,0,0)
 	max_angular_acceleration.x = torque_saturation:dot(self.ship_constants.LOCAL_INV_INERTIA_TENSOR.x)

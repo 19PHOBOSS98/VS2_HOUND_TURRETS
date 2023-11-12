@@ -280,12 +280,16 @@ function Sensors:targetedPlayersAreUndetected()
 	return self.radars.targeted_players_undetected
 end
 
+function Sensors:customUpdateLoop()
+	
+end
+
 function Sensors:updateTargetingSystem()
 	self.shipReader:updateShipReader()
 	self.radars:updateTargetingTables()
 	self.aimTargeting:listenToExternalRadar()
 	self.orbitTargeting:listenToExternalRadar()
-
+	self:customUpdateLoop()
 end
 --RADAR SYSTEM FUNCTIONS--
 

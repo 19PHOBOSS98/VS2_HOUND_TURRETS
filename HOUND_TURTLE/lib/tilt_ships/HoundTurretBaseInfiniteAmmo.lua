@@ -6,7 +6,7 @@ local flight_utilities = require "lib.flight_utilities"
 local list_manager = require "lib.list_manager"
 
 local HoundTurretBase = require "lib.tilt_ships.HoundTurretBase"
-local TenThrusterTemplateVerticalCompact = require "lib.tilt_ships.TenThrusterTemplateVerticalCompact"
+local TenThrusterTemplateVerticalCompactSP = require "lib.tilt_ships.TenThrusterTemplateVerticalCompactSP"
 
 local sqrt = math.sqrt
 local abs = math.abs
@@ -40,7 +40,7 @@ local HoundTurretBaseInfiniteAmmo = HoundTurretBase:subclass()
 
 --overridden functions--
 function HoundTurretBaseInfiniteAmmo:setShipFrameClass(configs) --override this to set ShipFrame Template
-	self.ShipFrame = TenThrusterTemplateVerticalCompact(configs)
+	self.ShipFrame = TenThrusterTemplateVerticalCompactSP(configs)
 end
 
 function HoundTurretBaseInfiniteAmmo:alternateFire(step)

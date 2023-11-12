@@ -5,7 +5,7 @@ local player_spatial_utilities = require "lib.player_spatial_utilities"
 local flight_utilities = require "lib.flight_utilities"
 local list_manager = require "lib.list_manager"
 
-local TenThrusterTemplateHorizontalCompact = require "lib.tilt_ships.TenThrusterTemplateHorizontalCompact"
+local TenThrusterTemplateHorizontalCompactSP = require "lib.tilt_ships.TenThrusterTemplateHorizontalCompactSP"
 local Object = require "lib.object.Object"
 
 local sqrt = math.sqrt
@@ -40,7 +40,7 @@ local HoundTurretBase = Object:subclass()
 
 --custom--
 function HoundTurretBase:setShipFrameClass(configs) --override this to set ShipFrame Template
-	self.ShipFrame = TenThrusterTemplateHorizontalCompact(configs)
+	self.ShipFrame = TenThrusterTemplateHorizontalCompactSP(configs)
 end
 
 function HoundTurretBase:initializeShipFrameClass(instance_configs)
@@ -93,7 +93,7 @@ function HoundTurretBase:initializeShipFrameClass(instance_configs)
 	configs.rc_variables.player_mounting_ship = false
 	configs.rc_variables.weapons_free = false--activate to fire cannons
 	configs.rc_variables.hunt_mode = false--activate for the drone to follow what it's aiming at, force-activates auto_aim if set to true
-	
+	configs.rc_variables.range_finding_mode = 1--1:manual ; 2:auto ; 3:auto-external
 	self:setShipFrameClass(configs)
 	
 	
@@ -138,7 +138,7 @@ function HoundTurretBase:initCustom(custom_config)
 		self.bulletRange:set(delta)
 	end
 	function HoundTurretBase:getBulletRange()
-		self.bulletRange:get()
+		return self.bulletRange:get()
 	end
 	function HoundTurretBase:overrideBulletRange(new_value)
 		self.bulletRange:override(new_value)
@@ -152,6 +152,10 @@ end
 function HoundTurretBase:setHuntMode(mode)
 	self.ShipFrame.remoteControlManager.rc_variables.hunt_mode = mode
 	self.ShipFrame:setAutoAim(self.ShipFrame:getAutoAim())
+end
+
+function HoundTurretBase:getHuntMode()
+	return self.ShipFrame.remoteControlManager.rc_variables.hunt_mode
 end
 
 function HoundTurretBase:alternateFire(toggle)
@@ -256,16 +260,43 @@ function HoundTurretBase:addShipFrameCustomThread()
 		table.insert(self.ShipFrame.threads,thread)
 	end
 end
+
+function HoundTurretBase:setRangeFindingMode(mode)
+	self.ShipFrame.remoteControlManager.rc_variables.range_finding_mode = mode
+	local external = mode==3
+	self.ShipFrame.sensors:useExternalRangeGoggle(external)
+end
+
+function HoundTurretBase:getRangeFindingMode()
+	return self.ShipFrame.remoteControlManager.rc_variables.range_finding_mode
+end
+
+function HoundTurretBase:getGoggleRange()
+	return self.ShipFrame.sensors:getGoggleRange()
+end
+
+function HoundTurretBase:getManualRange(mode)
+	
+	if(mode==1) then
+		return self:getBulletRange()
+	else
+		return self:getGoggleRange()
+	end
+end
 --custom--
 
 --overridden functions--
 function HoundTurretBase:overrideShipFrameCustomProtocols()
 	local htb = self
 	function self.ShipFrame:customProtocols(msg)
+		self:debugProbe({msg=msg})
 		local command = msg.cmd
 		command = command and tonumber(command) or command
 		case =
 		{
+		["set_range_finding_mode"] = function (arguments)--1:manual ; 2:auto ; 3:auto-external
+			htb:setRangeFindingMode(arguments.mode)
+		end,
 		["override_bullet_range"] = function (arguments)
 			htb:overrideBulletRange(arguments.args)
 		end,
@@ -303,8 +334,9 @@ function HoundTurretBase:overrideShipFrameGetCustomSettings()
 	local htb = self
 	function self.ShipFrame.remoteControlManager:getCustomSettings()
 		return {
-			hunt_mode = self.rc_variables.hunt_mode,
+			hunt_mode = htb:getHuntMode(),
 			bullet_range = htb:getBulletRange(),
+			range_finding_mode = htb:getRangeFindingMode(),
 		}
 	end
 end
@@ -340,6 +372,9 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 		--term.clear()
 		--term.setCursorPos(1,1)
 		if(not self.sensors.radars.targeted_players_undetected) then
+			
+			
+			
 			if (self.remoteControlManager.rc_variables.run_mode) then
 				local target_aim = self.sensors.aimTargeting:getTargetSpatials()
 				local target_orbit = self.sensors.orbitTargeting:getTargetSpatials()
@@ -368,15 +403,20 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 						local orbit_target_mode = self:getTargetMode(false)
 						
 						local aim_z = vector.new()
+						
+						local range = htb:getManualRange(htb:getRangeFindingMode())
+						--self:debugProbe({getRangeFindingMode = htb:getRangeFindingMode(),range=range})
 						if (aim_target_mode == orbit_target_mode) then
+							
 							aim_z = target_orbit_orientation:localPositiveZ()
-							bullet_convergence_point = target_orbit_position:add(aim_z:mul(htb.bulletRange:get()))
+							
+							bullet_convergence_point = target_orbit_position:add(aim_z:mul(range))
 						else
 							aim_z = target_aim_orientation:localPositiveZ()
 							if (self.remoteControlManager.rc_variables.player_mounting_ship) then
 								aim_z = target_orbit_orientation:rotateVector3(aim_z)
 							end
-							bullet_convergence_point = target_aim_position:add(aim_z:mul(htb.bulletRange:get()))
+							bullet_convergence_point = target_aim_position:add(aim_z:mul(range))
 						end
 						
 						htb.activate_weapons = self.remoteControlManager.rc_variables.weapons_free

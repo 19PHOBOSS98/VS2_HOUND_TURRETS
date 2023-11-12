@@ -112,7 +112,7 @@ function SomePeripheralsRadar:Targeting(arguments)
 				if (scanned_targets) then
 					local list_size = #scanned_targets
 					self.playerListScroller:updateListSize(list_size)
-					if (list_size>1) then
+					--if (list_size>1) then
 						if (is_auto_aim) then
 							local target = self.playerListScroller:getCurrentItem(scanned_targets)
 							if (target) then
@@ -143,8 +143,8 @@ function SomePeripheralsRadar:Targeting(arguments)
 							
 						end
 					end
-				end
-				return self.playerListScroller:getCurrentItem(scanned_targets)
+				--end
+				--return self.playerListScroller:getCurrentItem(scanned_targets)
 			end
 			return nil
 		end,

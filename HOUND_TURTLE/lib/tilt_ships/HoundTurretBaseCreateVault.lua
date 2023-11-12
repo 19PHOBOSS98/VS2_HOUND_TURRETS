@@ -6,7 +6,7 @@ local flight_utilities = require "lib.flight_utilities"
 local list_manager = require "lib.list_manager"
 
 local HoundTurretBase = require "lib.tilt_ships.HoundTurretBase"
-local TenThrusterTemplateVerticalCompact = require "lib.tilt_ships.TenThrusterTemplateVerticalCompact"
+local TenThrusterTemplateVerticalCompactSP = require "lib.tilt_ships.TenThrusterTemplateVerticalCompactSP"
 
 local sqrt = math.sqrt
 local abs = math.abs
@@ -40,7 +40,7 @@ local HoundTurretBaseCreateVault = HoundTurretBase:subclass()
 
 --overridden functions--
 function HoundTurretBaseCreateVault:setShipFrameClass(configs) --override this to set ShipFrame Template
-	self.ShipFrame = TenThrusterTemplateVerticalCompact(configs)
+	self.ShipFrame = TenThrusterTemplateVerticalCompactSP(configs)
 end
 
 function HoundTurretBaseCreateVault:getBulletCount()
@@ -58,7 +58,7 @@ function HoundTurretBaseCreateVault:alternateFire(step)
 	self:activateGun({"front",2,4},seq_2)
 end
 
-function HoundTurretBase:CustomThreads()
+function HoundTurretBaseCreateVault:CustomThreads()
 	local htb = self
 	
 	

@@ -14,13 +14,13 @@ local acos = math.acos
 local pi = math.pi
 local clamp = utilities.clamp
 
-local TenThrusterTemplateVerticalCompact = DroneBaseClassSP:subclass()
+local TwelveThrusterTemplateVerticalCompactSP = DroneBaseClassSP:subclass()
 
-function TenThrusterTemplateVerticalCompact:getOffsetDefaultShipOrientation(default_ship_orientation)-----------------------
+function TwelveThrusterTemplateVerticalCompactSP:getOffsetDefaultShipOrientation(default_ship_orientation)-----------------------
 	return quaternion.fromRotation(default_ship_orientation:localPositiveY(), 45)*default_ship_orientation
 end
 
-function TenThrusterTemplateVerticalCompact:init(instance_configs)
+function TwelveThrusterTemplateVerticalCompactSP:init(instance_configs)
 	local configs = instance_configs
 	
 	configs.ship_constants_config = configs.ship_constants_config or {}
@@ -58,11 +58,11 @@ function TenThrusterTemplateVerticalCompact:init(instance_configs)
 	}
 
 	--these values are specific for the vertical 10-thruster template--
-	configs.ship_constants_config.INV_ACTIVE_THRUSTERS_PER_LINEAR_MOVEMENT = vector.new(1/4,1/1,1/4)-----------------------
-	configs.ship_constants_config.INV_ACTIVE_THRUSTERS_PER_ANGULAR_MOVEMENT = vector.new(1/4,1/4,1/4)-----------------------
+	configs.ship_constants_config.INV_ACTIVE_THRUSTERS_PER_LINEAR_MOVEMENT = vector.new(1/4,1/2,1/4)
+	configs.ship_constants_config.INV_ACTIVE_THRUSTERS_PER_ANGULAR_MOVEMENT = vector.new(1/4,1/4,1/4)
 	
 	configs.ship_constants_config.ANGLED_THRUST_COEFFICIENT = vector.new(
-																		1/math.sin(math.pi/4),--lateral x-thrusters are at a 45 degree angle-----------------------
+																		1/math.sin(math.pi/4),--lateral x-thrusters are at a 45 degree angle
 																		1,--the ship is built vertical and the y-thrusters are aligned to the axis
 																		1/math.sin(math.pi/4))--lateral z-thrusters are at a 45 degree angle
 		
@@ -83,10 +83,10 @@ function TenThrusterTemplateVerticalCompact:init(instance_configs)
 
 	
 
-	TenThrusterTemplateVerticalCompact.superClass.init(self,configs)
+	TwelveThrusterTemplateVerticalCompactSP.superClass.init(self,configs)
 end
 
-function TenThrusterTemplateVerticalCompact:composeComponentMessage(linear,angular)
+function TwelveThrusterTemplateVerticalCompactSP:composeComponentMessage(linear,angular)
 	local ccf_common = linear.lin_z_p	+	linear.lin_x_p	+	angular.rot_y_p
 	local ccb_common = linear.lin_z_n	+	linear.lin_x_n	+	angular.rot_y_p
 	local cr_common = linear.lin_z_n	+	linear.lin_x_p	+	angular.rot_y_n
@@ -136,10 +136,10 @@ local group_component_map =
 		}
 }
 
-TenThrusterTemplateVerticalCompact.RSIBow = peripheral.wrap("top")
-TenThrusterTemplateVerticalCompact.RSIStern = peripheral.wrap("bottom")
+TwelveThrusterTemplateVerticalCompactSP.RSIBow = peripheral.wrap("top")
+TwelveThrusterTemplateVerticalCompactSP.RSIStern = peripheral.wrap("bottom")
 
-function TenThrusterTemplateVerticalCompact:powerThrusters(group,component_values)
+function TwelveThrusterTemplateVerticalCompactSP:powerThrusters(group,component_values)
 	if (group == "BOW") then
 		self.RSIBow.setAnalogOutput(group_component_map.BOW[1], component_values[1])
 		self.RSIBow.setAnalogOutput(group_component_map.BOW[2], component_values[2])
@@ -155,12 +155,12 @@ function TenThrusterTemplateVerticalCompact:powerThrusters(group,component_value
 	end
 end
 
-function TenThrusterTemplateVerticalCompact:communicateWithComponent(component_control_msg)	
+function TwelveThrusterTemplateVerticalCompactSP:communicateWithComponent(component_control_msg)	
 	self:powerThrusters("BOW",component_control_msg.BOW)
 	self:powerThrusters("STERN",component_control_msg.STERN)
 end
 
-function TenThrusterTemplateVerticalCompact:resetRedstone()
+function TwelveThrusterTemplateVerticalCompactSP:resetRedstone()
 	self:communicateWithComponent({
 		BOW={0,0,0,0,0},
 		STERN={0,0,0,0,0}
@@ -168,4 +168,4 @@ function TenThrusterTemplateVerticalCompact:resetRedstone()
 	self:onResetRedstone()
 end
 
-return TenThrusterTemplateVerticalCompact
+return TwelveThrusterTemplateVerticalCompactSP
