@@ -290,6 +290,26 @@ function Sensors:updateTargetingSystem()
 	self.orbitTargeting:listenToExternalRadar()
 	self:customUpdateLoop()
 end
+
+function Sensors:getTargetingSystemThreads(condition)
+	return {
+		function()
+			self.shipReader:updateShipReader()
+		end,
+		function()
+			self.radars:updateTargetingTables()
+		end,
+		function()
+			self.aimTargeting:listenToExternalRadar()
+		end,
+		function()
+			self.orbitTargeting:listenToExternalRadar()
+		end,
+		function()
+			self:customUpdateLoop()
+		end
+	}
+end
 --RADAR SYSTEM FUNCTIONS--
 
 return Sensors

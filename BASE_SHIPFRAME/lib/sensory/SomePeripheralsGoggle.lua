@@ -9,7 +9,8 @@ function SomePeripheralsGoggle:init(configs)
 	self.use_external_goggle_port = configs.use_external_goggle_port or false
 	self.EXTERNAL_GOGGLE_PORT_CHANNEL = configs.channels_config.EXTERNAL_GOGGLE_PORT_CHANNEL or 0
 	self.max_distance = configs.max_distance or 300
-	self.prev_distance = max_distance
+	self.prev_distance = self.max_distance
+
 	SomePeripheralsGoggle.superClass.init(self)
 end
 
@@ -24,6 +25,8 @@ end
 function SomePeripheralsGoggle:updatePrevDistance(range)
 	self.prev_distance = range
 end
+
+--local modem = peripheral.find("modem")
 
 function SomePeripheralsGoggle:listenToExternalPort()
 	if (self.use_external_goggle_port) then
@@ -43,10 +46,11 @@ function SomePeripheralsGoggle:getDistance()
 
 	for k, v in pairs(self.peripheral.getConnected()) do
 		local item = v.raycast(self.max_distance, {0, 0, 1}, false, true, false, true)
-		print(textutils.serialize(item))
+		
 		if (item.distance) then
 			self:updatePrevDistance(item.distance)
 		end
+		
 		return self.prev_distance
 	end
 	return self.prev_distance

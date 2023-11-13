@@ -35,23 +35,23 @@ function TenThrusterTemplateVerticalCompactSP:init(instance_configs)
 	{
 		POS = {
 			P = 5,
-			I = 0.05,
-			D = 4.5
+			I = 0,
+			D = 4
 		},
 		ROT = {
 			X = {
-				P = 0.1,
-				I = 0.03,
+				P = 0.15,
+				I = 0.08,
 				D = 0.15
 			},
 			Y = {
-				P = 0.1,
-				I = 0.03,
+				P = 0.15,
+				I = 0.08,
 				D = 0.15
 			},
 			Z = {
-				P = 0.1,
-				I = 0.03,
+				P = 0.15,
+				I = 0.08,
 				D = 0.15
 			}
 		}
@@ -60,18 +60,18 @@ function TenThrusterTemplateVerticalCompactSP:init(instance_configs)
 	TenThrusterTemplateVerticalCompactSP.superClass.init(self,configs)
 end
 
-function TenThrusterTemplateVerticalCompactSP:composeComponentMessage(linear,angular)
+function TenThrusterTemplateVerticalCompactSP:composeComponentMessage(redstone_power)
 	local BOW_U = redstone_power[1]
 	local BOW_CCF = redstone_power[2]
 	local BOW_CCB  = redstone_power[3]
-	local BOW_CR  = redstone_power[4]
-	local BOW_CL  = redstone_power[5]
+	local BOW_CL  = redstone_power[4]
+	local BOW_CR  = redstone_power[5]
 	
 	local STERN_D  = redstone_power[6]
 	local STERN_CCF  = redstone_power[7]
 	local STERN_CCB = redstone_power[8]
-	local STERN_CR = redstone_power[9]
-	local STERN_CL = redstone_power[10]
+	local STERN_CL = redstone_power[9]
+	local STERN_CR = redstone_power[10]
 	
 	return {
 		BOW={BOW_U,BOW_CCF,BOW_CCB,BOW_CL,BOW_CR},

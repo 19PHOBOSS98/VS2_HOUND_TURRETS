@@ -107,6 +107,8 @@ function DroneBaseClass:init(configs)
 	
 	self:initRemoteControl(configs)
 	
+	
+	
 	self.threads = {
 		function()
 			self:receiveCommand()
@@ -114,13 +116,16 @@ function DroneBaseClass:init(configs)
 		function()
 			self:calculateMovement()
 		end,
-		function()
+		--[[function()
 			self:updateTargetingSystem()
 		end,
+		]]--
 		function()
 			self:checkInterupt()
 		end,
 	}
+	
+	self:addTargetingSystemThreads()
 end
 
 function DroneBaseClass:initRemoteControl(configs)
@@ -281,27 +286,6 @@ function DroneBaseClass:initConstants(ship_constants_config)
 		--make sure ALL the tournament thrusters are upgraded to the same level
 		THRUSTER_TIER = 1,
 		
-		-- 1 divided by the number of thrusters responsible for each axis of linear movement
-		INV_ACTIVE_THRUSTERS_PER_LINEAR_MOVEMENT = vector.new(1/1,1/1,1/1),
-		
-		-- 1 divided by the number of thrusters responsible for each axis of angular movement
-		INV_ACTIVE_THRUSTERS_PER_ANGULAR_MOVEMENT = vector.new(1/1,1/1,1/1),
-		
-		ANGLED_THRUST_COEFFICIENT = vector.new(0,0,0),
-		
-		THRUSTER_SPATIALS = {
-			THRUSTER_POSITIONS = {
-				X_AXIS = vector.new(0,0,0),
-				Y_AXIS = vector.new(0,0,0),
-				Z_AXIS = vector.new(0,0,0),
-			},
-			THRUSTER_DIRECTION = {
-				X_AXIS = vector.new(0,0,0),
-				Y_AXIS = vector.new(0,0,0),
-				Z_AXIS = vector.new(0,0,0)
-			}
-		},
-		
 		PID_SETTINGS = {
 			POS = {
 				P = 0,
@@ -349,20 +333,12 @@ function DroneBaseClass:initModemChannels(channels_config)
 		REPLY_DUMP_CHANNEL = 0,
 		EXTERNAL_AIM_TARGETING_CHANNEL = 0,--transmit targeting information from external radar system
 		EXTERNAL_ORBIT_TARGETING_CHANNEL = 0,
-		EXTERNAL_GOGGLE_PORT_CHANNEL = 0,
 	}
-	
-	for channel_name,new_channel in pairs(channels_config) do
-		if (self.com_channels[channel_name]~=nil) then
-			self.com_channels[channel_name] = new_channel
-		end
-	end
-	
 	local modem = self.modem
-	modem.open(self.com_channels.DEBUG_TO_DRONE_CHANNEL)
-	modem.open(self.com_channels.REMOTE_TO_DRONE_CHANNEL)
-	modem.open(self.com_channels.EXTERNAL_AIM_TARGETING_CHANNEL)
-	modem.open(self.com_channels.EXTERNAL_ORBIT_TARGETING_CHANNEL)
+	for channel_name,new_channel in pairs(channels_config) do
+		self.com_channels[channel_name] = new_channel
+		modem.open(new_channel)
+	end
 end
 
 function DroneBaseClass:initRadar(radar_config)
@@ -820,6 +796,27 @@ function DroneBaseClass:updateTargetingSystem()
 		os.sleep(0.05)
 	end
 end
+
+function DroneBaseClass:addTargetingSystemThreads()
+	
+	local functions = self.sensors:getTargetingSystemThreads(self.run_firmware)
+	
+	for i,v in ipairs(functions) do
+		local thread = function()
+			while self.run_firmware do
+					v()
+				os.sleep(0)
+			end
+		end
+		table.insert(self.threads,thread)
+	end
+	
+	
+	
+end
+
+
+
 
 function DroneBaseClass:checkInterupt()
 	while self.run_firmware do

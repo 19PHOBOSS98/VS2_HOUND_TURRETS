@@ -14,18 +14,18 @@ local acos = math.acos
 local pi = math.pi
 local clamp = utilities.clamp
 
-local TenThrusterTemplateHorizontalCompactSP = DroneBaseClassSP:subclass()
+local TwelveThrusterTemplateVerticalCompactSP = DroneBaseClassSP:subclass()
 
-function TenThrusterTemplateHorizontalCompactSP:getOffsetDefaultShipOrientation(default_ship_orientation)
-	return quaternion.fromRotation(default_ship_orientation:localPositiveZ(), 45)*default_ship_orientation
+function TwelveThrusterTemplateVerticalCompactSP:getOffsetDefaultShipOrientation(default_ship_orientation)
+	return quaternion.fromRotation(default_ship_orientation:localPositiveY(), 45)*default_ship_orientation
 end
 
-function TenThrusterTemplateHorizontalCompactSP:init(instance_configs)
+function TwelveThrusterTemplateVerticalCompactSP:init(instance_configs)
 	local configs = instance_configs
 	
 	configs.ship_constants_config = configs.ship_constants_config or {}
 	
-	configs.ship_constants_config.DEFAULT_NEW_LOCAL_SHIP_ORIENTATION = quaternion.fromRotation(vector.new(0,0,1), 45)
+	configs.ship_constants_config.DEFAULT_NEW_LOCAL_SHIP_ORIENTATION = quaternion.fromRotation(vector.new(0,1,0), 45)
 	
 	configs.ship_constants_config.MOD_CONFIGURED_THRUSTER_SPEED = configs.ship_constants_config.MOD_CONFIGURED_THRUSTER_SPEED or 10000
 	
@@ -35,74 +35,74 @@ function TenThrusterTemplateHorizontalCompactSP:init(instance_configs)
 	{
 		POS = {
 			P = 5,
-			I = 0.05,
-			D = 4.5
+			I = 0,
+			D = 4
 		},
 		ROT = {
 			X = {
-				P = 0.1,
-				I = 0.03,
+				P = 0.15,
+				I = 0.08,
 				D = 0.15
 			},
 			Y = {
-				P = 0.1,
-				I = 0.03,
+				P = 0.15,
+				I = 0.08,
 				D = 0.15
 			},
 			Z = {
-				P = 0.1,
-				I = 0.03,
+				P = 0.15,
+				I = 0.08,
 				D = 0.15
 			}
 		}
 	}
 
-	TenThrusterTemplateHorizontalCompactSP.superClass.init(self,configs)
+	TwelveThrusterTemplateVerticalCompactSP.superClass.init(self,configs)
 end
 
-function TenThrusterTemplateHorizontalCompactSP:composeComponentMessage(redstone_power)
-	local BOW_F = redstone_power[1]
-	local BOW_CCT = redstone_power[2]
+function TwelveThrusterTemplateVerticalCompactSP:composeComponentMessage(redstone_power)
+	local BOW_U = redstone_power[1]
+	local BOW_CCF = redstone_power[2]
 	local BOW_CCB  = redstone_power[3]
-	local BOW_CR  = redstone_power[4]
-	local BOW_CL  = redstone_power[5]
-		
-	local STERN_B  = redstone_power[6]
-	local STERN_CCT  = redstone_power[7]
+	local BOW_CL  = redstone_power[4]
+	local BOW_CR  = redstone_power[5]
+	
+	local STERN_D  = redstone_power[6]
+	local STERN_CCF  = redstone_power[7]
 	local STERN_CCB = redstone_power[8]
-	local STERN_CR = redstone_power[9]
-	local STERN_CL = redstone_power[10]
-
+	local STERN_CL = redstone_power[9]
+	local STERN_CR = redstone_power[10]
+	
 	return {
-		BOW={BOW_F,BOW_CCT,BOW_CCB,BOW_CL,BOW_CR},
-		STERN={STERN_B,STERN_CCT,STERN_CCB,STERN_CL,STERN_CR}
+		BOW={BOW_U,BOW_CCF,BOW_CCB,BOW_CL,BOW_CR},
+		STERN={STERN_D,STERN_CCF,STERN_CCB,STERN_CL,STERN_CR}
 	}
 end
 
 local group_component_map = {
 	BOW = 
 		{
-		"south",--ZF
-		"up",--ZCCT
-		"down",--ZCCB
+		"up",--ZU
+		"south",--ZCCF
+		"north",--ZCCB
 		"east",--ZCL
 		"west"--ZCR
 		}
 	,
 	STERN = 
 		{
-		"north",--ZB
-		"up",--ZCCT
-		"down",--ZCCB
+		"down",--ZD
+		"south",--ZCCF
+		"north",--ZCCB
 		"east",--ZCL
 		"west"--ZCR
 		}
 }
 
-TenThrusterTemplateHorizontalCompactSP.RSIBow = peripheral.wrap("front")
-TenThrusterTemplateHorizontalCompactSP.RSIStern = peripheral.wrap("back")
+TwelveThrusterTemplateVerticalCompactSP.RSIBow = peripheral.wrap("top")
+TwelveThrusterTemplateVerticalCompactSP.RSIStern = peripheral.wrap("bottom")
 
-function TenThrusterTemplateHorizontalCompactSP:powerThrusters(group,component_values)
+function TwelveThrusterTemplateVerticalCompactSP:powerThrusters(group,component_values)
 	if (group == "BOW") then
 		self.RSIBow.setAnalogOutput(group_component_map.BOW[1], component_values[1])
 		self.RSIBow.setAnalogOutput(group_component_map.BOW[2], component_values[2])
@@ -118,12 +118,12 @@ function TenThrusterTemplateHorizontalCompactSP:powerThrusters(group,component_v
 	end
 end
 
-function TenThrusterTemplateHorizontalCompactSP:communicateWithComponent(component_control_msg)	
+function TwelveThrusterTemplateVerticalCompactSP:communicateWithComponent(component_control_msg)	
 	self:powerThrusters("BOW",component_control_msg.BOW)
 	self:powerThrusters("STERN",component_control_msg.STERN)
 end
 
-function TenThrusterTemplateHorizontalCompactSP:resetRedstone()
+function TwelveThrusterTemplateVerticalCompactSP:resetRedstone()
 	self:communicateWithComponent({
 		BOW={0,0,0,0,0},
 		STERN={0,0,0,0,0}
@@ -131,4 +131,4 @@ function TenThrusterTemplateHorizontalCompactSP:resetRedstone()
 	self:onResetRedstone()
 end
 
-return TenThrusterTemplateHorizontalCompactSP
+return TwelveThrusterTemplateVerticalCompactSP
