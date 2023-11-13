@@ -28,10 +28,7 @@ function DroneBaseClassSP:initSensors(configs)
 	self.sensors = SensorsSP(configs)
 end
 
-
-
-
-
+--pre-calculate thruster placement compensation:
 function DroneBaseClassSP:getInertiaTensors()
 	return self.sensors.shipReader:getInertiaMatrix()
 end
@@ -47,7 +44,9 @@ function DroneBaseClassSP:rotateInertiaTensors()
 end
 
 function DroneBaseClassSP:getThrusterTableJSONFile()
-	local h = fs.open("thruster_table.json","r")
+	self.ship_constants = self.ship_constants or {}
+	self.ship_constants.THRUSTER_TABLE_DIRECTORY = self.ship_constants.THRUSTER_TABLE_DIRECTORY or "./input_thruster_table/thruster_table.json"
+	local h = fs.open(self.ship_constants.THRUSTER_TABLE_DIRECTORY,"r")
 	serialized = h.readAll()
 	obj = JSON:decode(serialized)
 	h.close()
@@ -103,6 +102,8 @@ function DroneBaseClassSP:buildJacobianTranspose(thruster_table)
 	return jacobian_transpose
 end
 
+
+--redstone:
 function DroneBaseClassSP:initFlightConstants()
 	
 	local min_time_step = 0.05 --how fast the computer should continuously loop (the max is 0.05 for ComputerCraft)
@@ -247,20 +248,5 @@ function DroneBaseClassSP:applyRedStonePower(redstone_power)
 	local component_control_msg = self:composeComponentMessage(pwm_redstone_power)
 	self:communicateWithComponent(component_control_msg)
 end
-
---[[
-self:debugProbe({
-	BOW_F=pwm_redstone_power[1],
-	BOW_CCT=pwm_redstone_power[2],
-	BOW_CCB=pwm_redstone_power[3],
-	BOW_CR=pwm_redstone_power[4],
-	BOW_CL=pwm_redstone_power[5],
-	STERN_B=pwm_redstone_power[6],
-	STERN_CCT=pwm_redstone_power[7],
-	STERN_CCB=pwm_redstone_power[8],
-	STERN_CR=pwm_redstone_power[9],
-	STERN_CL=pwm_redstone_power[10],
-	})
-]]--
 
 return DroneBaseClassSP

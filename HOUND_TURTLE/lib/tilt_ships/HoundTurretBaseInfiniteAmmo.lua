@@ -55,52 +55,7 @@ function HoundTurretBaseInfiniteAmmo:alternateFire(step)
 end
 
 function HoundTurretBaseInfiniteAmmo:init(instance_configs)
-	local configs = instance_configs
-	
-	configs.ship_constants_config = configs.ship_constants_config or {}
-	
-	
-	--REMOVE WHEN VS2-COMPUTERS UPDATE RELEASES--
-	--unrotated inertia tensors--
-	
-	--bare template--
-	--it_hound_4b_inf.nbt--
-	--[[configs.ship_constants_config.LOCAL_INERTIA_TENSOR = configs.ship_constants_config.LOCAL_INERTIA_TENSOR or
-	{
-	x=vector.new(28030.733960085767,2.2737367544323206E-13,-299.9999999999999),
-	y=vector.new(2.2737367544323206E-13,14839.999999999998,2.8421709430404007E-14),
-	z=vector.new(-299.9999999999999,2.8421709430404007E-14,21750.733960085767)
-	}
-	configs.ship_constants_config.LOCAL_INV_INERTIA_TENSOR = configs.ship_constants_config.LOCAL_INV_INERTIA_TENSOR or
-	{
-	x=vector.new(3.568039422202221E-5,-5.476259743494812E-22,4.92126761618689E-7),
-	y=vector.new(-5.47625974349481E-22,6.738544474393532E-5,-9.560584605887562E-23),
-	z=vector.new(4.921267616186892E-7,-9.560584605887565E-23,4.598224776524008E-5)
-	}]]--
-	--bare template--
-	
-	--Netherite Caged, paste in firmwareScript.lua--
-	--hound_4b_caged.nbt--
-	--[[
-	LOCAL_INERTIA_TENSOR = 
-	{
-	x=vector.new(95477.12678267715,-2.2737367544323206E-13,-300.0),
-	y=vector.new(-2.2737367544323206E-13,52200.0,-1.1368683772161603E-13),
-	z=vector.new(-300.0,-1.1368683772161603E-13,89197.12678267717)
-	},
-	LOCAL_INV_INERTIA_TENSOR = 
-	{
-	x=vector.new(1.0473823436011874E-5,4.56987849928189E-23,3.522699826934104E-8),
-	y=vector.new(4.569878499281891E-23,1.9157088122605363E-5,2.45705044900259E-23),
-	z=vector.new(3.5226998269341027E-8,2.4570504490025896E-23,1.1211241933116742E-5)
-	},
-	]]--
-	--Netherite Caged, paste in firmwareScript.lua--
-	
-	--unrotated inertia tensors--
-	--REMOVE WHEN VS2-COMPUTERS UPDATE RELEASES--
-
-	HoundTurretBaseInfiniteAmmo.superClass.init(self,configs)
+	HoundTurretBaseInfiniteAmmo.superClass.init(self,instance_configs)
 end
 --overridden functions--
 

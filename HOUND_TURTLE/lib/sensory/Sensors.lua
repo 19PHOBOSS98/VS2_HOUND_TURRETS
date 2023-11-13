@@ -101,7 +101,6 @@ function Sensors:getInertiaTensors()
 			}
 end
 
-
 function Sensors:RadarSystems(radar_arguments)
 	local sens = self
 	return{

@@ -13,7 +13,8 @@ local thruster_direction = {
 	["west"] = vector.new(-1,0,0),
 }
 
-function ThrusterTableBuilder:init(input_thrusters)
+function ThrusterTableBuilder:init(input_thrusters,directory)
+	self.directory = directory or "./input_thruster_table/thruster_table.json"
 	self.input_thrusters = input_thrusters --{{shipyard_pos, direction}}
 	for i,v in pairs(self.input_thrusters) do
 		v[2] = thruster_direction[v[2]]
@@ -22,8 +23,8 @@ function ThrusterTableBuilder:init(input_thrusters)
 	ThrusterTableBuilder.superClass.init(self)
 end
 
-function saveThrusterTableJSONFile(t)
-	local h = fs.open("thruster_table.json","w")
+function ThrusterTableBuilder:saveThrusterTableJSONFile(t)
+	local h = fs.open(self.directory,"w")
 	h.writeLine(JSON:encode_pretty(t))
 	h.flush()
 	h.close()
@@ -37,7 +38,7 @@ function ThrusterTableBuilder:build(center_of_mass)
 		self.thruster_table[i].direction = v[2]
 	end
 	
-	saveThrusterTableJSONFile(self.thruster_table)
+	self:saveThrusterTableJSONFile(self.thruster_table)
 end
 
 return ThrusterTableBuilder

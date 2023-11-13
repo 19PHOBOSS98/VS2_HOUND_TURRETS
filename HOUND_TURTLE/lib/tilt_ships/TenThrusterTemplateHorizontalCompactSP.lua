@@ -61,7 +61,6 @@ function TenThrusterTemplateHorizontalCompactSP:init(instance_configs)
 end
 
 function TenThrusterTemplateHorizontalCompactSP:composeComponentMessage(redstone_power)
-
 	local BOW_F = redstone_power[1]
 	local BOW_CCT = redstone_power[2]
 	local BOW_CCB  = redstone_power[3]
@@ -73,8 +72,6 @@ function TenThrusterTemplateHorizontalCompactSP:composeComponentMessage(redstone
 	local STERN_CCB = redstone_power[8]
 	local STERN_CR = redstone_power[9]
 	local STERN_CL = redstone_power[10]
-	
-	
 
 	return {
 		BOW={BOW_F,BOW_CCT,BOW_CCB,BOW_CL,BOW_CR},
@@ -82,8 +79,7 @@ function TenThrusterTemplateHorizontalCompactSP:composeComponentMessage(redstone
 	}
 end
 
-local group_component_map = 
-{
+local group_component_map = {
 	BOW = 
 		{
 		"south",--ZF

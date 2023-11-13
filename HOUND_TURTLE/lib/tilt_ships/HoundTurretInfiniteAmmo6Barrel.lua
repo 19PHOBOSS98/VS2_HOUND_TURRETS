@@ -52,37 +52,6 @@ function HoundTurretInfiniteAmmo6Barrel:alternateFire(step)
 	self:activateGun({"bottom",3,2},seq_2)
 	self:activateGun({"bottom",4,2},seq_2)
 end
-
-function HoundTurretInfiniteAmmo6Barrel:init(instance_configs)
-	local configs = instance_configs
-	
-	configs.ship_constants_config = configs.ship_constants_config or {}
-	
-	
-	--REMOVE WHEN VS2-COMPUTERS UPDATE RELEASES--
-	--unrotated inertia tensors--
-	
-	--bare template--
-	--it_hound_6b_inf.nbt--
-	configs.ship_constants_config.LOCAL_INERTIA_TENSOR = configs.ship_constants_config.LOCAL_INERTIA_TENSOR or
-	{
-	x=vector.new(31060.09254315713,-5.6843418860808015E-14,180.0),
-	y=vector.new(-5.6843418860808015E-14,19540.0,0.0),
-	z=vector.new(180.0,0.0,31560.09254315713)
-	}
-	configs.ship_constants_config.LOCAL_INV_INERTIA_TENSOR = configs.ship_constants_config.LOCAL_INV_INERTIA_TENSOR or
-	{
-	x=vector.new(3.2196718415402425E-5,9.366282245804556E-23,-1.8363093539245627E-7),
-	y=vector.new(9.366282245804558E-23,5.117707267144319E-5,-5.341970407530889E-25),
-	z=vector.new(-1.836309353924565E-7,-5.3419704075309E-25,3.1686632483756695E-5)
-	}
-	--bare template--
-	
-	--unrotated inertia tensors--
-	--REMOVE WHEN VS2-COMPUTERS UPDATE RELEASES--
-
-	HoundTurretInfiniteAmmo6Barrel.superClass.init(self,configs)
-end
 --overridden functions--
 
 return HoundTurretInfiniteAmmo6Barrel

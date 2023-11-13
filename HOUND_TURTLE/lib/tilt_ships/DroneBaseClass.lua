@@ -475,15 +475,15 @@ function DroneBaseClass:debugProbe(msg)--transmits to debug channel
 	self.modem.transmit(self.com_channels.DRONE_TO_DEBUG_CHANNEL, self.com_channels.REPLY_DUMP_CHANNEL, msg)
 end
 
---[[
---SAMPLE: Transmit from controller to this drone
-modem.transmit(
-	self.com_channels.REMOTE_TO_DRONE_CHANNEL, 
-	self.com_channels.DRONE_TO_REMOTE_CHANNEL,
-	{drone_id=drone,msg={cmd=cmd,args=args}}
-	)
-]]--
 function DroneBaseClass:protocols(msg)
+	--[[
+		--SAMPLE: Transmit from controller to this drone
+		modem.transmit(
+			self.com_channels.REMOTE_TO_DRONE_CHANNEL, 
+			self.com_channels.DRONE_TO_REMOTE_CHANNEL,
+			{drone_id=drone,msg={cmd=cmd,args=args}}
+			)
+	]]--
 	local command = msg.cmd
 	command = command and tonumber(command) or command
 	case =
@@ -550,7 +550,6 @@ end
 
 
 --THREAD FUNCTIONS--
-
 function DroneBaseClass:receiveCommand()
 	--[[
 	--SAMPLE-- 
@@ -832,8 +831,6 @@ function DroneBaseClass:checkInterupt()
 	end
 	
 end
-
-
 
 function DroneBaseClass:run()
 	parallel.waitForAny(unpack(self.threads))

@@ -265,6 +265,4 @@ function SomePeripheralsRadar:Targeting(arguments)
 	}
 end
 
-
-
 return SomePeripheralsRadar

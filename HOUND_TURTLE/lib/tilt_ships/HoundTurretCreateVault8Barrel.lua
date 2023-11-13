@@ -52,14 +52,6 @@ function HoundTurretCreateVault8Barrel:alternateFire(step)
 	self:activateGun({"front",3,2},seq_2)
 	self:activateGun({"front",4,2},seq_2)
 end
-
-function HoundTurretCreateVault8Barrel:init(instance_configs)
-	local configs = instance_configs
-	
-	configs.ship_constants_config = configs.ship_constants_config or {}
-
-	HoundTurretCreateVault8Barrel.superClass.init(self,configs)
-end
 --overridden functions--
 
 return HoundTurretCreateVault8Barrel

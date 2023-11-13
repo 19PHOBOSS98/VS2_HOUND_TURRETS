@@ -43,10 +43,6 @@ function HoundTurretBaseCreateVault:setShipFrameClass(configs) --override this t
 	self.ShipFrame = TenThrusterTemplateVerticalCompactSP(configs)
 end
 
-function HoundTurretBaseCreateVault:getBulletCount()
-	return self.bullet_count
-end
-
 function HoundTurretBaseCreateVault:alternateFire(step)
 	local seq_1 = step==0
 	local seq_2 = step==1
@@ -169,12 +165,12 @@ function HoundTurretBaseCreateVault:CustomThreads()
 end
 
 function HoundTurretBaseCreateVault:init(instance_configs)
-	local configs = instance_configs
-	
-	configs.ship_constants_config = configs.ship_constants_config or {}	
-
-	HoundTurretBaseCreateVault.superClass.init(self,configs)
+	HoundTurretBaseCreateVault.superClass.init(self,instance_configs)
 end
 --overridden functions--
+
+function HoundTurretBaseCreateVault:getBulletCount()
+	return self.bullet_count
+end
 
 return HoundTurretBaseCreateVault

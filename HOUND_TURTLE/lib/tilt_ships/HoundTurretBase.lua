@@ -38,11 +38,49 @@ local IndexedListScroller = list_manager.IndexedListScroller
 
 local HoundTurretBase = Object:subclass()
 
---custom--
+--overridable functions--
 function HoundTurretBase:setShipFrameClass(configs) --override this to set ShipFrame Template
 	self.ShipFrame = TenThrusterTemplateHorizontalCompactSP(configs)
 end
 
+function HoundTurretBase:alternateFire(toggle)
+	local seq_1 = step==0
+	local seq_2 = step==1
+	--{hub_index, redstoneIntegrator_index, side_index}
+	self:activateGun({"top",1,1},seq_1)
+	self:activateGun({"top",1,3},seq_1)
+	
+	self:activateGun({"top",1,2},seq_2)
+	self:activateGun({"top",1,4},seq_2)
+	
+end
+
+function HoundTurretBase:CustomThreads()
+	local htb = self
+	local threads = {
+		function()--synchronize guns
+			sync_step = 0
+			while self.ShipFrame.run_firmware do
+				
+				if (htb.activate_weapons) then
+					htb:alternateFire(sync_step)
+					
+					sync_step = math.fmod(sync_step+1,htb.ALTERNATING_FIRE_SEQUENCE_COUNT)
+				else
+					htb:reset_guns()
+				end
+				os.sleep(htb.GUNS_COOLDOWN_DELAY)
+			end
+			htb:reset_guns()
+		end,
+	}
+	return threads
+end
+
+--overridable functions--
+
+--custom--
+--initialization:
 function HoundTurretBase:initializeShipFrameClass(instance_configs)
 	local configs = instance_configs
 	
@@ -99,32 +137,6 @@ function HoundTurretBase:initializeShipFrameClass(instance_configs)
 	
 end
 
-function HoundTurretBase:run()
-	self.ShipFrame:run()
-end
-
-
-
-
-
-function HoundTurretBase:reset_guns()
-	for key,hub in pairs(self.gun_controllers_hub) do
-		for i,cntr in ipairs(hub) do
-			cntr.setOutput("north",false)
-			cntr.setOutput("south",false)
-			cntr.setOutput("east",false)
-			cntr.setOutput("west",false)
-		end
-	end
-end
-
-function HoundTurretBase:activateGun(index,toggle)
-	self.gun_controllers_hub[index[1]]
-		[index[2]]
-			.setOutput(
-				self.gun_component_map[index[3]],toggle)
-end
-
 function HoundTurretBase:initCustom(custom_config)
 	self:initializeGunPeripherals()
 	self.ALTERNATING_FIRE_SEQUENCE_COUNT = 2
@@ -143,31 +155,6 @@ function HoundTurretBase:initCustom(custom_config)
 	function HoundTurretBase:overrideBulletRange(new_value)
 		self.bulletRange:override(new_value)
 	end
-end
-
-function HoundTurretBase:setWeaponsFree(mode)
-	self.ShipFrame.remoteControlManager.rc_variables.weapons_free = mode
-end
-
-function HoundTurretBase:setHuntMode(mode)
-	self.ShipFrame.remoteControlManager.rc_variables.hunt_mode = mode
-	self.ShipFrame:setAutoAim(self.ShipFrame:getAutoAim())
-end
-
-function HoundTurretBase:getHuntMode()
-	return self.ShipFrame.remoteControlManager.rc_variables.hunt_mode
-end
-
-function HoundTurretBase:alternateFire(toggle)
-	local seq_1 = step==0
-	local seq_2 = step==1
-	--{hub_index, redstoneIntegrator_index, side_index}
-	self:activateGun({"top",1,1},seq_1)
-	self:activateGun({"top",1,3},seq_1)
-	
-	self:activateGun({"top",1,2},seq_2)
-	self:activateGun({"top",1,4},seq_2)
-	
 end
 
 function HoundTurretBase:initializeGunPeripherals()
@@ -233,32 +220,29 @@ function HoundTurretBase:initializeGunPeripherals()
 	end
 end
 
-function HoundTurretBase:CustomThreads()
-	local htb = self
-	local threads = {
-		function()--synchronize guns
-			sync_step = 0
-			while self.ShipFrame.run_firmware do
-				
-				if (htb.activate_weapons) then
-					htb:alternateFire(sync_step)
-					
-					sync_step = math.fmod(sync_step+1,htb.ALTERNATING_FIRE_SEQUENCE_COUNT)
-				else
-					htb:reset_guns()
-				end
-				os.sleep(htb.GUNS_COOLDOWN_DELAY)
-			end
-			htb:reset_guns()
-		end,
-	}
-	return threads
-end
-
 function HoundTurretBase:addShipFrameCustomThread()
 	for k,thread in pairs(self:CustomThreads()) do
 		table.insert(self.ShipFrame.threads,thread)
 	end
+end
+
+function HoundTurretBase:run()
+	self.ShipFrame:run()
+end
+
+
+--setters and getters:
+function HoundTurretBase:setWeaponsFree(mode)
+	self.ShipFrame.remoteControlManager.rc_variables.weapons_free = mode
+end
+
+function HoundTurretBase:setHuntMode(mode)
+	self.ShipFrame.remoteControlManager.rc_variables.hunt_mode = mode
+	self.ShipFrame:setAutoAim(self.ShipFrame:getAutoAim())
+end
+
+function HoundTurretBase:getHuntMode()
+	return self.ShipFrame.remoteControlManager.rc_variables.hunt_mode
 end
 
 function HoundTurretBase:setRangeFindingMode(mode)
@@ -276,14 +260,34 @@ function HoundTurretBase:getGoggleRange()
 end
 
 function HoundTurretBase:getManualRange(mode)
-	
 	if(mode==1) then
 		return self:getBulletRange()
 	else
 		return self:getGoggleRange()
 	end
 end
+
+
+--redstone:
+function HoundTurretBase:reset_guns()
+	for key,hub in pairs(self.gun_controllers_hub) do
+		for i,cntr in ipairs(hub) do
+			cntr.setOutput("north",false)
+			cntr.setOutput("south",false)
+			cntr.setOutput("east",false)
+			cntr.setOutput("west",false)
+		end
+	end
+end
+
+function HoundTurretBase:activateGun(index,toggle)
+	self.gun_controllers_hub[index[1]]
+		[index[2]]
+			.setOutput(
+				self.gun_component_map[index[3]],toggle)
+end
 --custom--
+
 
 --overridden functions--
 function HoundTurretBase:overrideShipFrameCustomProtocols()

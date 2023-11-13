@@ -14,6 +14,7 @@ local instance_configs = {
 	ship_constants_config = {
 		DRONE_ID = 421,
 		THRUSTER_TIER = 5,
+		THRUSTER_TABLE_DIRECTORY = "./input_thruster_table/thruster_table.json",
 	},
 	channels_config = {
 		DEBUG_TO_DRONE_CHANNEL = 9,

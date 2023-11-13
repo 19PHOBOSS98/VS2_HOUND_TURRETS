@@ -35,23 +35,23 @@ function TenThrusterTemplateVerticalCompactSP:init(instance_configs)
 	{
 		POS = {
 			P = 5,
-			I = 0,
-			D = 4
+			I = 0.05,
+			D = 4.5
 		},
 		ROT = {
 			X = {
-				P = 0.15,
-				I = 0.08,
+				P = 0.1,
+				I = 0.03,
 				D = 0.15
 			},
 			Y = {
-				P = 0.15,
-				I = 0.08,
+				P = 0.1,
+				I = 0.03,
 				D = 0.15
 			},
 			Z = {
-				P = 0.15,
-				I = 0.08,
+				P = 0.1,
+				I = 0.03,
 				D = 0.15
 			}
 		}

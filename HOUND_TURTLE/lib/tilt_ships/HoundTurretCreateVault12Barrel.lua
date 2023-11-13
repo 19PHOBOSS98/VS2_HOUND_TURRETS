@@ -60,37 +60,6 @@ function HoundTurretCreateVault12Barrel:alternateFire(step)
 	self:activateGun({"front",7,2},seq_2)
 	self:activateGun({"front",8,2},seq_2)
 end
-
-function HoundTurretCreateVault12Barrel:init(instance_configs)
-	local configs = instance_configs
-	
-	configs.ship_constants_config = configs.ship_constants_config or {}
-	
-	
-	--REMOVE WHEN VS2-COMPUTERS UPDATE RELEASES--
-	--unrotated inertia tensors--
-	
-	--bare template--
-	--it_hound_12b_vault.nbt--
-	configs.ship_constants_config.LOCAL_INERTIA_TENSOR = configs.ship_constants_config.LOCAL_INERTIA_TENSOR or
-	{
-	x=vector.new(120498.1260137242,-4.547473508864641E-13,-440.0),
-	y=vector.new(-4.547473508864641E-13,48900.0,-2.2737367544323206E-13),
-	z=vector.new(-440.0,-2.2737367544323206E-13,108838.1260137242)
-	}
-	configs.ship_constants_config.LOCAL_INV_INERTIA_TENSOR = configs.ship_constants_config.LOCAL_INV_INERTIA_TENSOR or
-	{
-	x=vector.new(8.299006758523021E-6,7.733292058971292E-23,3.3550402855059036E-8),
-	y=vector.new(7.733292058971291E-23,2.0449897750511246E-5,4.303450519205818E-23),
-	z=vector.new(3.355040285505905E-8,4.3034505192058195E-23,9.188092434182086E-6)
-	}
-	--bare template--
-	
-	--unrotated inertia tensors--
-	--REMOVE WHEN VS2-COMPUTERS UPDATE RELEASES--
-
-	HoundTurretCreateVault12Barrel.superClass.init(self,configs)
-end
 --overridden functions--
 
 return HoundTurretCreateVault12Barrel

@@ -3,8 +3,7 @@ local Object = require "lib.object.Object"
 local RemoteControlManager = Object:subclass()
 
 --OVERRIDABLE FUNCTIONS--
-
-function RemoteControlManager:customRCProtocols(msg)--
+function RemoteControlManager:customRCProtocols(msg)
 	local command = msg.cmd
 	command = command and tonumber(command) or command
 	case =
@@ -50,7 +49,6 @@ function RemoteControlManager:setSettings(new_settings)
 		end
 	end
 end
-
 --OVERRIDABLE FUNCTIONS--
 
 
