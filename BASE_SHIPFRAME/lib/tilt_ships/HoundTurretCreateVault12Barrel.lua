@@ -39,26 +39,30 @@ local HoundTurretCreateVault12Barrel = HoundTurretBaseCreateVault:subclass()
 
 --overridden functions--
 function HoundTurretCreateVault12Barrel:alternateFire(step)
+	--[[
+		side_index:
+		1="front"
+		2="left"
+		3="back"
+		4="right"
+	]]--
 	local seq_1 = step==0
 	local seq_2 = step==1
-
+	--{hub_index, redstoneIntegrator_index, side_index}
 	self:activateGun({"front",1,4},seq_1)
 	self:activateGun({"front",2,4},seq_1)
 	self:activateGun({"front",3,4},seq_1)
 	self:activateGun({"front",4,4},seq_1)
 	self:activateGun({"front",5,4},seq_1)
 	self:activateGun({"front",6,4},seq_1)
-	self:activateGun({"front",7,4},seq_1)
-	self:activateGun({"front",8,4},seq_1)
 	
-	self:activateGun({"front",1,2},seq_2)
-	self:activateGun({"front",2,2},seq_2)
-	self:activateGun({"front",3,2},seq_2)
-	self:activateGun({"front",4,2},seq_2)
-	self:activateGun({"front",5,2},seq_2)
-	self:activateGun({"front",6,2},seq_2)
-	self:activateGun({"front",7,2},seq_2)
-	self:activateGun({"front",8,2},seq_2)
+	self:activateGun({"front",1,3},seq_2)
+	self:activateGun({"front",2,3},seq_2)
+	self:activateGun({"front",3,3},seq_2)
+	self:activateGun({"front",4,3},seq_2)
+	self:activateGun({"front",5,3},seq_2)
+	self:activateGun({"front",6,3},seq_2)
+
 end
 --overridden functions--
 
