@@ -18,6 +18,7 @@ local PlayerVelocityCalculator = player_spatial_utilities.PlayerVelocityCalculat
 
 local Sensors = Object:subclass()
 
+
 function Sensors:init()
 	self.shipReader = ShipReader()
 	self.shipRadar = ShipRadar()
@@ -255,7 +256,7 @@ function Sensors:setDesignatedMaster(is_player,designation)
 end
 
 function Sensors:getDesignatedMaster(is_player)
-	self.radars:getDesignatedMaster(is_player)
+	return self.radars:getDesignatedMaster(is_player)
 end
 
 

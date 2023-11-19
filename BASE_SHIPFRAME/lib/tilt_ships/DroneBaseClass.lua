@@ -157,13 +157,13 @@ function DroneBaseClass:initRemoteControl(configs)
 	end
 	
 	function self.remoteControlManager:getSettings()
+
 		local rcd_settings = {
 			orbit_offset = self.rc_variables.orbit_offset,
 			dynamic_positioning_mode = self.rc_variables.dynamic_positioning_mode,
 			player_mounting_ship = self.rc_variables.player_mounting_ship,
-			
 			run_mode = self:getRunMode(),
-			
+					
 			auto_aim = dbc:getAutoAim(),
 			use_external_aim = dbc:isUsingExternalRadar(true),
 			use_external_orbit = dbc:isUsingExternalRadar(false),
@@ -172,9 +172,12 @@ function DroneBaseClass:initRemoteControl(configs)
 			master_player = dbc.sensors:getDesignatedMaster(true),
 			master_ship = dbc.sensors:getDesignatedMaster(false),
 		}
+		
 		for key,value in pairs(self:getCustomSettings()) do
+			print(key,value)
 			rcd_settings[key] = value
 		end
+		
 		return rcd_settings
 	end
 

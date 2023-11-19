@@ -15,6 +15,7 @@ local getPlayerHeadOrientation = player_spatial_utilities.getPlayerHeadOrientati
 
 local SensorsSP = Sensors:subclass()
 
+
 function SensorsSP:init(configs)
 	SensorsSP.superClass.init(self)
 	

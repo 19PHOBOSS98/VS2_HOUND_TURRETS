@@ -35,9 +35,13 @@ function RemoteControlManager:getSettings()
 		player_mounting_ship = self.rc_variables.player_mounting_ship,
 	}
 	
-	for key,value in pairs(self:getCustomSettings()) do
+	local custom_settings = self:getCustomSettings()
+
+	for key,value in pairs(custom_settings) do
+		print(key,value)
 		rcd_settings[key] = value
 	end
+	error()
 	
 	return rcd_settings
 end
