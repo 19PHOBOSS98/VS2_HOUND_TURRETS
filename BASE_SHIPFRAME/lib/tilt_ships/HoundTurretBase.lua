@@ -140,7 +140,7 @@ end
 function HoundTurretBase:initCustom(custom_config)
 	self:initializeGunPeripherals()
 	self.ALTERNATING_FIRE_SEQUENCE_COUNT = 2
-	self.GUNS_COOLDOWN_DELAY = 1 --in seconds -- 5 shots per burst
+	self.GUNS_COOLDOWN_DELAY = 0.05 --in seconds
 	self.activate_weapons = false
 	
 	self.AUTOCANNON_BARREL_COUNT = custom_config.AUTOCANNON_BARREL_COUNT
@@ -409,7 +409,7 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 						
 						local range = htb:getManualRange(htb:getRangeFindingMode())
 					
-						--self:debugProbe({getRangeFindingMode = htb:getRangeFindingMode(),range=range})
+						--self:debugProbe({Range = range})
 						
 						if (aim_target_mode == orbit_target_mode) then
 							
