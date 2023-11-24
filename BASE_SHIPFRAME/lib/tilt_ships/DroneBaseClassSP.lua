@@ -24,7 +24,6 @@ local DroneBaseClassSP = DroneBaseClass:subclass()
 
 
 function DroneBaseClassSP:initSensors(configs)
-	configs.use_external_goggle_port = configs.use_external_goggle_port or false
 	self.sensors = SensorsSP(configs)
 end
 

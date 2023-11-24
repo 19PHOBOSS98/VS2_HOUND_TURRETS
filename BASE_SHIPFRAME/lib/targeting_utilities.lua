@@ -57,7 +57,10 @@ function targeting_utilities.TargetingSystem(
 	targeting_mode,
 	auto_aim_active,
 	use_external_radar,
-	radarSystems)
+	radarSystems,
+	drone_id,
+	drone_type
+	)
 	return{
 		external_targeting_system_channel = external_targeting_system_channel,
 		
@@ -71,16 +74,24 @@ function targeting_utilities.TargetingSystem(
 		
 		radarSystems = radarSystems,
 		
+		drone_id = drone_id,
+		
+		drone_type = drone_type,
+		
 		TARGET_MODE = {"PLAYER","SHIP","ENTITY"},
 		
 		listenToExternalRadar = function(self)
 			if (self.use_external_radar) then
 				local _, _, senderChannel, _, message, _ = os.pullEvent("modem_message")
+				--print(senderChannel,external_targeting_system_channel)
 				if (senderChannel == external_targeting_system_channel) then
-					if (message.trg) then
+					if (self.drone_id == message.DRONE_ID and self.drone_type == message.DRONE_TYPE and message.trg) then
+						--print(textutils.serialize(message.trg))
 						self.current_target:updateTargetSpatials(message.trg)
+						
 					end
 				end
+				
 			end
 		end,
 		
@@ -91,9 +102,9 @@ function targeting_utilities.TargetingSystem(
 					self.targeting_mode = self.TARGET_MODE[1]
 					spatial_attributes = self.radarSystems:getRadarTarget(self.targeting_mode,self.auto_aim_active)
 				end
-				
 				self.current_target:updateTargetSpatials(spatial_attributes)
 			end
+			
 			return self.current_target.target_spatial
 		end,
 		

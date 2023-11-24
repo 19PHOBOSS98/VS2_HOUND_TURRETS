@@ -116,10 +116,6 @@ function DroneBaseClass:init(configs)
 		function()
 			self:calculateMovement()
 		end,
-		--[[function()
-			self:updateTargetingSystem()
-		end,
-		]]--
 		function()
 			self:checkInterupt()
 		end,
@@ -349,6 +345,8 @@ function DroneBaseClass:initRadar(radar_config)
 	radar_config = radar_config or {}
 	radar_config.EXTERNAL_AIM_TARGETING_CHANNEL = self.com_channels.EXTERNAL_AIM_TARGETING_CHANNEL
 	radar_config.EXTERNAL_ORBIT_TARGETING_CHANNEL = self.com_channels.EXTERNAL_ORBIT_TARGETING_CHANNEL
+	radar_config.DRONE_ID = self.ship_constants.DRONE_ID
+	radar_config.DRONE_TYPE = self.ship_constants.DRONE_TYPE
 	
 	self.sensors:initRadar(radar_config)
 	
@@ -375,7 +373,7 @@ function DroneBaseClass:useExternalRadar(is_aim,mode)
 end
 
 function DroneBaseClass:isUsingExternalRadar(is_aim)
-	return self.sensors:useExternalRadar(is_aim,mode)
+	return self.sensors:isUsingExternalRadar(is_aim)
 end
 
 function DroneBaseClass:setTargetMode(is_aim,target_mode)
@@ -793,16 +791,9 @@ function DroneBaseClass:calculateMovement()
 	end
 end
 
-function DroneBaseClass:updateTargetingSystem()
-	while self.run_firmware do
-		self.sensors:updateTargetingSystem()
-		os.sleep(0.05)
-	end
-end
-
 function DroneBaseClass:addTargetingSystemThreads()
 	
-	local functions = self.sensors:getTargetingSystemThreads(self.run_firmware)
+	local functions = self.sensors:getTargetingSystemThreads()
 	
 	for i,v in ipairs(functions) do
 		local thread = function()

@@ -6,7 +6,7 @@ local SomePeripheralsGoggle = Object:subclass()
 
 function SomePeripheralsGoggle:init(configs)
 	self.peripheral = peripheral.find("goggle_link_port")
-	self.use_external_goggle_port = configs.use_external_goggle_port or false
+	self.use_external_goggle_port = configs.use_external_goggle_port or true
 	self.EXTERNAL_GOGGLE_PORT_CHANNEL = configs.channels_config.EXTERNAL_GOGGLE_PORT_CHANNEL or 0
 	self.max_distance = configs.max_distance or 300
 	self.prev_distance = self.max_distance

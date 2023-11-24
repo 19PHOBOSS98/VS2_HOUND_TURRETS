@@ -69,8 +69,8 @@ function Sensors:initRadar(radar_config)
 	end
 	
 	self.radars = self:RadarSystems(radar_arguments)
-	self.aimTargeting = TargetingSystem(radar_config.EXTERNAL_AIM_TARGETING_CHANNEL,"PLAYER",false,false,self.radars)
-	self.orbitTargeting = TargetingSystem(radar_config.EXTERNAL_ORBIT_TARGETING_CHANNEL,"PLAYER",false,false,self.radars)
+	self.aimTargeting = TargetingSystem(radar_config.EXTERNAL_AIM_TARGETING_CHANNEL,"PLAYER",false,false,self.radars,radar_config.DRONE_ID,radar_config.DRONE_TYPE)
+	self.orbitTargeting = TargetingSystem(radar_config.EXTERNAL_ORBIT_TARGETING_CHANNEL,"PLAYER",false,false,self.radars,radar_config.DRONE_ID,radar_config.DRONE_TYPE)
 
 	function Sensors:scrollUpShipTargets()
 		self.radars:scrollUpShipTargets()
@@ -284,15 +284,7 @@ function Sensors:customUpdateLoop()
 	
 end
 
-function Sensors:updateTargetingSystem()
-	self.shipReader:updateShipReader()
-	self.radars:updateTargetingTables()
-	self.aimTargeting:listenToExternalRadar()
-	self.orbitTargeting:listenToExternalRadar()
-	self:customUpdateLoop()
-end
-
-function Sensors:getTargetingSystemThreads(condition)
+function Sensors:getTargetingSystemThreads()
 	return {
 		function()
 			self.shipReader:updateShipReader()
@@ -304,6 +296,16 @@ function Sensors:getTargetingSystemThreads(condition)
 			self.aimTargeting:listenToExternalRadar()
 		end,
 		function()
+			--[[local ori = self.shipReader:getRotation(true)
+			local pos = self.shipReader:getWorldspacePosition()
+			
+			local trg_spatials = {	
+				orientation = quaternion.new(ori.w,ori.x,ori.y,ori.z), 
+				position = vector.new(pos.x,pos.y,pos.z), 
+				velocity = vector.new(0,0,0)
+			}
+			self.orbitTargeting.current_target:updateTargetSpatials(trg_spatials)
+			]]--
 			self.orbitTargeting:listenToExternalRadar()
 		end,
 		function()

@@ -15,6 +15,10 @@ function ShipReader:getWorldspacePosition()
 	return self.peripheral.getWorldspacePosition()
 end
 
+function ShipReader:getVelocity()
+	return self.peripheral.getVelocity()
+end
+
 function ShipReader:getShipID()
 	return self.peripheral.getShipID()
 end

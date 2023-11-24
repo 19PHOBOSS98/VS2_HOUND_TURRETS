@@ -23,6 +23,10 @@ function ShipReaderSP:getWorldspacePosition()
 	return self.ship.pos
 end
 
+function ShipReaderSP:getVelocity()
+	return self.ship.velocity
+end
+
 function ShipReaderSP:getShipID()
 	return self.shipID
 end

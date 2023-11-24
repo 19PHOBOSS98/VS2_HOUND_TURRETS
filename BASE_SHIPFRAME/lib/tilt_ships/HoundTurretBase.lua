@@ -106,7 +106,7 @@ function HoundTurretBase:initializeShipFrameClass(instance_configs)
 				D = 0.15
 			},
 			Y = {
-				P = 0.05,
+				P = 0.04,
 				I = 0.05,
 				D = 0.05
 			},
@@ -131,7 +131,7 @@ function HoundTurretBase:initializeShipFrameClass(instance_configs)
 	configs.rc_variables.player_mounting_ship = false
 	configs.rc_variables.weapons_free = false--activate to fire cannons
 	configs.rc_variables.hunt_mode = false--activate for the drone to follow what it's aiming at, force-activates auto_aim if set to true
-	configs.rc_variables.range_finding_mode = 1--1:manual ; 2:auto ; 3:auto-external
+	configs.rc_variables.range_finding_mode = 3--1:manual ; 2:auto ; 3:auto-external
 	self:setShipFrameClass(configs)
 	
 	
@@ -374,6 +374,9 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 		
 		--term.clear()
 		--term.setCursorPos(1,1)
+		
+		
+		
 		if(not self.sensors.radars.targeted_players_undetected) then
 			
 			
@@ -388,7 +391,7 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 				
 				local target_orbit_position = target_orbit.position
 				local target_orbit_orientation = target_orbit.orientation
-
+				
 				--Aiming
 				local bullet_convergence_point = vector.new(0,1,0)
 				if (self.sensors.aimTargeting:isUsingExternalRadar()) then
@@ -408,8 +411,6 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 						local aim_z = vector.new()
 						
 						local range = htb:getManualRange(htb:getRangeFindingMode())
-					
-						--self:debugProbe({Range = range})
 						
 						if (aim_target_mode == orbit_target_mode) then
 							
@@ -445,7 +446,7 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 						
 					else --guard_mode
 						local formation_position = target_orbit_orientation:rotateVector3(self.remoteControlManager.rc_variables.orbit_offset)
-						--self:debugProbe({target_orbit_position=target_orbit_position})
+						self:debugProbe({target_orbit_position=target_orbit_position,target_aim_position=target_aim_position})
 						self.target_global_position = formation_position:add(target_orbit_position)
 					end
 				end
