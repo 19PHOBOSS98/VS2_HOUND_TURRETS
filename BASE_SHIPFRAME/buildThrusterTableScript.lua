@@ -46,21 +46,21 @@ local thrusters = {
 	{vector.new(-28620799,-52,12290053),"up"}, --STERN_CR
 	{vector.new(-28620797,-52,12290053),"down"}, --STERN_CL
 }]]--
---[[
+
 --tttvc_sp.nbt & 12ttvc_sp.nbt--
 local thrusters = {
-	{vector.new(-28620798,-50,12290054),"up"}, --BOW_U
-	{vector.new(-28620798,-51,12290055),"east"}, --BOW_CCF
-	{vector.new(-28620798,-51,12290053),"west"}, --BOW_CCB
-	{vector.new(-28620797,-51,12290054),"south"}, --BOW_CL
-	{vector.new(-28620799,-51,12290054),"north"}, --BOW_CR
-	{vector.new(-28620798,-54,12290054),"down"}, --STERN_D
-	{vector.new(-28620798,-53,12290055),"east"}, --STERN_CCF
-	{vector.new(-28620798,-53,12290053),"west"}, --STERN_CCB
-	{vector.new(-28620797,-53,12290054),"south"}, --STERN_CL
-	{vector.new(-28620799,-53,12290054),"north"}, --STERN_CR
+	{vector.new(-28665858,-47,12290062),"up"}, --BOW_U
+	{vector.new(-28665858,-48,12290063),"east"}, --BOW_CCF
+	{vector.new(-28665858,-48,12290061),"west"}, --BOW_CCB
+	{vector.new(-28665857,-48,12290062),"south"}, --BOW_CL
+	{vector.new(-28665859,-48,12290062),"north"}, --BOW_CR
+	{vector.new(-28665858,-51,12290062),"down"}, --STERN_D
+	{vector.new(-28665858,-50,12290063),"east"}, --STERN_CCF
+	{vector.new(-28665858,-50,12290061),"west"}, --STERN_CCB
+	{vector.new(-28665857,-50,12290062),"south"}, --STERN_CL
+	{vector.new(-28665859,-50,12290062),"north"}, --STERN_CR
 }
-]]--
+
 local thrusterTableBuilder = ThrusterTableBuilder(thrusters,"./input_thruster_table/thruster_table.json")
 
 local shipReaderSP = ShipReaderSP()

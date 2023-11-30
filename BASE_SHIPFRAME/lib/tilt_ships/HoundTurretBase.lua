@@ -139,11 +139,11 @@ end
 
 function HoundTurretBase:initCustom(custom_config)
 	self:initializeGunPeripherals()
-	self.ALTERNATING_FIRE_SEQUENCE_COUNT = 2
-	self.GUNS_COOLDOWN_DELAY = 0.05 --in seconds
+	self.ALTERNATING_FIRE_SEQUENCE_COUNT = custom_config.ALTERNATING_FIRE_SEQUENCE_COUNT or 2
+	self.GUNS_COOLDOWN_DELAY = custom_config.GUNS_COOLDOWN_DELAY or 0.05 --in seconds
 	self.activate_weapons = false
 	
-	self.AUTOCANNON_BARREL_COUNT = custom_config.AUTOCANNON_BARREL_COUNT
+	self.AUTOCANNON_BARREL_LENGTH = custom_config.AUTOCANNON_BARREL_LENGTH
 	
 	self.bulletRange = IntegerScroller(100,15,300)
 	function HoundTurretBase:changeBulletRange(delta)
@@ -354,7 +354,7 @@ end
 function HoundTurretBase:overrideShipFrameCustomPreFlightLoopBehavior()
 	local htb = self
 	function self.ShipFrame:customPreFlightLoopBehavior()
-		local bullet_velocity = htb.AUTOCANNON_BARREL_COUNT/0.05
+		local bullet_velocity = htb.AUTOCANNON_BARREL_LENGTH/0.05
 		htb.bullet_velocity_squared = bullet_velocity*bullet_velocity
 		htb:setHuntMode(self.remoteControlManager.rc_variables.hunt_mode)	--forces auto_aim to activate if hunt_mode is set to true on initialization
 														--toggle it on runtime as you wish
@@ -446,7 +446,7 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 						
 					else --guard_mode
 						local formation_position = target_orbit_orientation:rotateVector3(self.remoteControlManager.rc_variables.orbit_offset)
-						self:debugProbe({target_orbit_position=target_orbit_position,target_aim_position=target_aim_position})
+						--self:debugProbe({target_orbit_position=target_orbit_position,target_aim_position=target_aim_position})
 						self.target_global_position = formation_position:add(target_orbit_position)
 					end
 				end
@@ -469,7 +469,7 @@ function HoundTurretBase:init(instance_configs)
 	
 	
 	custom_config = {
-		AUTOCANNON_BARREL_COUNT = 7, --the recoil block counts as a barrel
+		AUTOCANNON_BARREL_LENGTH = 7, --the recoil block counts as a barrel
 	}
 	self:initCustom(custom_config)
 	HoundTurretBase.superClass.init(self)

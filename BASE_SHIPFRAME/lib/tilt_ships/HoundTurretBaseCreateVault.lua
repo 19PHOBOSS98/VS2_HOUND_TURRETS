@@ -77,7 +77,7 @@ function HoundTurretBaseCreateVault:CustomThreads()
 	for k,v in pairs(cannon_mount_names) do
 		table.insert(cannon_names,v)
 	end
-
+	
 	function fillCannonMounts(from_vault_index)
 		for k,cannon_name in pairs(cannon_mount_names) do
 			vault.pushItems(cannon_name,from_vault_index,cannon_mount_max_ammo_capacity,cannon_input_slot)
@@ -87,8 +87,7 @@ function HoundTurretBaseCreateVault:CustomThreads()
 	--leave the last vault slot empty when repleneshing ammo. It needs the space for spent cartidges
 	
 	local vault_max_slots = vault.size()
-	self.spent_shell_index = vault_max_slots
-	self.ready_shell_index = vault_max_slots-1
+	self.ready_shell_index = vault_max_slots
 	
 	local threads = {
 		function()--synchronize guns
@@ -113,49 +112,24 @@ function HoundTurretBaseCreateVault:CustomThreads()
 					local ready_index_details = vault.getItemDetail(self.ready_shell_index)
 					if (ready_index_details) then
 						if (ready_index_details.displayName ~= "Autocannon Cartridge") then
-							self.ready_shell_index = self.ready_shell_index > 1 and self.ready_shell_index - 1 or vault_max_slots-1
+							self.ready_shell_index = self.ready_shell_index > 1 and self.ready_shell_index - 1 or vault_max_slots
 						else
 							break
 						end
 					else
-						self.ready_shell_index = self.ready_shell_index > 1 and self.ready_shell_index - 1 or vault_max_slots-1
-					end
-				end
-				
-				for i=1,2000,1 do
-					local spent_index_details = vault.getItemDetail(self.spent_shell_index)
-					if (spent_index_details) then
-						if (spent_index_details.displayName == "Empty Autocannon Cartridge") then
-							if (spent_index_details.count >= vault.getItemLimit(self.spent_shell_index)) then
-								self.spent_shell_index = self.spent_shell_index > 1 and self.spent_shell_index - 1 or vault_max_slots
-							else
-								break
-							end
-						else
-							self.spent_shell_index = self.spent_shell_index > 1 and self.spent_shell_index - 1 or vault_max_slots
-						end
-					else
-						break
+						self.ready_shell_index = self.ready_shell_index > 1 and self.ready_shell_index - 1 or vault_max_slots
 					end
 				end
 				os.sleep(0.0)
 			end
 		end,
-		
-		function()--feed ammo
-			while self.ShipFrame.run_firmware do
-				fillCannonMounts(self.ready_shell_index)
-				os.sleep(0.0)
-			end
-		end,	
 	}
-	
 	
 	for k,cannon_name in pairs(cannon_mount_names) do
 		local emptyCannon = function()
 			while self.ShipFrame.run_firmware do
-				vault.pullItems(cannon_name,cannon_output_slot,64,self.spent_shell_index)
-				os.sleep(0.0)
+				vault.pullItems(cannon_name,cannon_output_slot,64)--take empty shell casings
+				vault.pushItems(cannon_name,self.ready_shell_index,cannon_mount_max_ammo_capacity,cannon_input_slot)--feed ammo
 			end
 		end
 		table.insert(threads,emptyCannon)
