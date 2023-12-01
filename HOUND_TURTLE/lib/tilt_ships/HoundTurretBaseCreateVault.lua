@@ -78,12 +78,6 @@ function HoundTurretBaseCreateVault:CustomThreads()
 		table.insert(cannon_names,v)
 	end
 	
-	function fillCannonMounts(from_vault_index)
-		for k,cannon_name in pairs(cannon_mount_names) do
-			vault.pushItems(cannon_name,from_vault_index,cannon_mount_max_ammo_capacity,cannon_input_slot)
-		end
-	end
-	
 	--leave the last vault slot empty when repleneshing ammo. It needs the space for spent cartidges
 	
 	local vault_max_slots = vault.size()
@@ -125,7 +119,7 @@ function HoundTurretBaseCreateVault:CustomThreads()
 		end,
 	}
 	
-	for k,cannon_name in pairs(cannon_mount_names) do
+	for _,cannon_name in ipairs(cannon_names) do
 		local emptyCannon = function()
 			while self.ShipFrame.run_firmware do
 				vault.pullItems(cannon_name,cannon_output_slot,64)--take empty shell casings

@@ -3,7 +3,7 @@ local quaternion = require "lib.quaternions"
 local player_spatial_utilities = require "lib.player_spatial_utilities"
 
 
-local ShipReader = require "lib.sensory.ShipReaderSP"
+local ShipReaderSP = require "lib.sensory.ShipReaderSP"
 local SomePeripheralsRadar = require "lib.sensory.SomePeripheralsRadar"
 local SomePeripheralsGoggle = require "lib.sensory.SomePeripheralsGoggle"
 
@@ -19,7 +19,7 @@ local SensorsSP = Sensors:subclass()
 function SensorsSP:init(configs)
 	SensorsSP.superClass.init(self)
 	
-	self.shipReader = ShipReader()
+	self.shipReader = ShipReaderSP()
 	self.radar = SomePeripheralsRadar()
 	self.goggle = SomePeripheralsGoggle(configs)
 
@@ -47,7 +47,7 @@ end
 
 function SensorsSP:RadarSystems(radar_arguments)
 	local sens = self
-	return{
+	local radarSystem = {
 		
 		targeting = sens.radar:Targeting(radar_arguments),
 		
@@ -55,9 +55,7 @@ function SensorsSP:RadarSystems(radar_arguments)
 		targeted_players_undetected = false,
 		targeted_mobs_undetected = false,
 		
-		updateTargetingTables = function(self)
-			self.targeting:updateTargets()
-		end,
+		targeting_table_update_threads = {},		
 		
 		getRadarTarget = function(self,trg_mode,args)
 			case =
@@ -163,6 +161,10 @@ function SensorsSP:RadarSystems(radar_arguments)
 			self.targeting:setWhitelist(is_playerWhiteList,list)
 		end
 	}
+	
+	radarSystem.targeting_table_update_threads = radarSystem.targeting:getTargetUpdatingThreads()
+	
+	return radarSystem
 end
 
 return SensorsSP

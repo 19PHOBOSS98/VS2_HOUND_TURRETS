@@ -43,7 +43,7 @@ function SomePeripheralsRadar:Targeting(arguments)
 		player_targets = {},
 		mob_targets = {},
 		
-		updateTargets = function(self)
+		updateTargets = function(self)--DEPRECATED
 			local targets = self:getTargetList(self)
 			self.ship_targets = {}
 			self.player_targets = {}
@@ -62,6 +62,44 @@ function SomePeripheralsRadar:Targeting(arguments)
 				end
 			end
 		end,
+		
+		--[[
+		--TEMP--
+		updateShipTargets = function(self) 
+			self.ship_targets = spr:scanForShips() 
+		end,
+		updatePlayerTargets = function(self) 
+			self.player_targets = spr:scanForPlayers() 
+		end,
+		updateMobTargets = function(self) 
+			self.mob_targets = spr:scanForEntities() 
+		end,
+		},
+		]]--
+		
+		getTargetUpdatingThreads = function(self)
+			local rdr = self
+			local targetingThreads = {
+				function()--DEPRECATED
+					rdr:updateTargets()
+				end,
+				--[[
+				--TEMP--
+				function()
+					rdr:updateShipTargets()
+				end,
+				function()
+					rdr:updatePlayerTargets()
+				end,
+				function()
+					rdr:updateMobTargets()
+				end,
+				]]--
+			}
+			return targetingThreads
+		end,
+		
+		
 		
 		getShipTarget = function(self,is_auto_aim)
 			if (spr.peripheral) then

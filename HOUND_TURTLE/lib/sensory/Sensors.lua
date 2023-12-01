@@ -104,7 +104,7 @@ end
 
 function Sensors:RadarSystems(radar_arguments)
 	local sens = self
-	return{
+	local radarSystem = {
 		
 		playerTargeting = sens.playerRadar:Targeting(radar_arguments),
 		shipTargeting = sens.shipRadar:Targeting(radar_arguments),
@@ -112,10 +112,7 @@ function Sensors:RadarSystems(radar_arguments)
 		targeted_players_undetected = false,
 		targeted_ships_undetected = false,
 		
-		updateTargetingTables = function(self)
-			self.playerTargeting:updateTargets()
-			self.shipTargeting:updateTargets()
-		end,
+		targeting_table_update_threads = {},
 		
 		getRadarTarget = function(self,trg_mode,args)
 			case =
@@ -210,6 +207,17 @@ function Sensors:RadarSystems(radar_arguments)
 			end
 		end
 	}
+	
+	radarSystem.targeting_table_update_threads = {
+		function() 
+			radarSystem.playerTargeting:updateTargets() 
+		end,
+		function() 
+			radarSystem.shipTargeting:updateTargets() 
+		end,
+	}
+	
+	return radarSystem
 end
 
 
@@ -285,12 +293,10 @@ function Sensors:customUpdateLoop()
 end
 
 function Sensors:getTargetingSystemThreads()
-	return {
+	
+	local targeting_threads =  {
 		function()
 			self.shipReader:updateShipReader()
-		end,
-		function()
-			self.radars:updateTargetingTables()
 		end,
 		function()
 			self.aimTargeting:listenToExternalRadar()
@@ -312,6 +318,14 @@ function Sensors:getTargetingSystemThreads()
 			self:customUpdateLoop()
 		end
 	}
+	
+	for _,thread in ipairs(self.radars.targeting_table_update_threads) do
+		local func = function() thread() end
+		table.insert(targeting_threads,func)
+	end
+		
+	return targeting_threads
+	
 end
 --RADAR SYSTEM FUNCTIONS--
 
