@@ -5,7 +5,7 @@ local player_spatial_utilities = require "lib.player_spatial_utilities"
 local flight_utilities = require "lib.flight_utilities"
 local list_manager = require "lib.list_manager"
 
-local TenThrusterTemplateHorizontalCompactSP = require "lib.tilt_ships.TenThrusterTemplateHorizontalCompactSP"
+local TenThrusterTemplateVerticalCompactSP = require "lib.tilt_ships.TenThrusterTemplateVerticalCompactSP"
 local Object = require "lib.object.Object"
 
 local sqrt = math.sqrt
@@ -40,19 +40,15 @@ local HoundTurretBase = Object:subclass()
 
 --overridable functions--
 function HoundTurretBase:setShipFrameClass(configs) --override this to set ShipFrame Template
-	self.ShipFrame = TenThrusterTemplateHorizontalCompactSP(configs)
+	self.ShipFrame = TenThrusterTemplateVerticalCompactSP(configs)
 end
 
-function HoundTurretBase:alternateFire(toggle)
+function HoundTurretBase:alternateFire(step)
 	local seq_1 = step==0
 	local seq_2 = step==1
-	--{hub_index, redstoneIntegrator_index, side_index}
-	self:activateGun({"top",1,1},seq_1)
-	self:activateGun({"top",1,3},seq_1)
-	
-	self:activateGun({"top",1,2},seq_2)
-	self:activateGun({"top",1,4},seq_2)
-	
+	--{modem_block, redstoneIntegrator_side}
+	self:activateAllGuns({"front","right"},seq_1)
+	self:activateAllGuns({"front","back"},seq_2)	
 end
 
 function HoundTurretBase:CustomThreads()
@@ -281,10 +277,18 @@ function HoundTurretBase:reset_guns()
 end
 
 function HoundTurretBase:activateGun(index,toggle)
+	--index={modem_block, redstoneIntegrator_index, redstoneIntegrator_side}
 	self.gun_controllers_hub[index[1]]
 		[index[2]]
 			.setOutput(
-				self.gun_component_map[index[3]],toggle)
+				index[3],toggle)
+end
+
+function HoundTurretBase:activateAllGuns(index,toggle)
+	--index={modem_block, redstoneIntegrator_side}
+	for _,gun in pairs(self.gun_controllers_hub[index[1]]) do
+		gun.setOutput(index[2],toggle)
+	end
 end
 --custom--
 

@@ -6,7 +6,6 @@ local flight_utilities = require "lib.flight_utilities"
 local list_manager = require "lib.list_manager"
 
 local HoundTurretBase = require "lib.tilt_ships.HoundTurretBase"
-local TenThrusterTemplateVerticalCompactSP = require "lib.tilt_ships.TenThrusterTemplateVerticalCompactSP"
 
 local sqrt = math.sqrt
 local abs = math.abs
@@ -39,24 +38,8 @@ local HoundTurretBaseCreateVault = HoundTurretBase:subclass()
 
 
 --overridden functions--
-function HoundTurretBaseCreateVault:setShipFrameClass(configs) --override this to set ShipFrame Template
-	self.ShipFrame = TenThrusterTemplateVerticalCompactSP(configs)
-end
-
-function HoundTurretBaseCreateVault:alternateFire(step)
-	local seq_1 = step==0
-	local seq_2 = step==1
-	--{hub_index, redstoneIntegrator_index, side_index}
-	self:activateGun({"front",1,3},seq_1)
-	self:activateGun({"front",2,3},seq_1)
-	
-	self:activateGun({"front",1,4},seq_2)
-	self:activateGun({"front",2,4},seq_2)
-end
-
 function HoundTurretBaseCreateVault:CustomThreads()
 	local htb = self
-	
 	
 	local cannon_mounts = {peripheral.find("createbigcannons:cannon_mount")}
 	
