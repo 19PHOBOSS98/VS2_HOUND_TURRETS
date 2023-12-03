@@ -67,7 +67,6 @@ function Sensors:initRadar(radar_config)
 	for name,validation in pairs(radar_config.player_name_whitelist) do
 		radar_arguments.player_name_whitelist[name] = validation
 	end
-	
 	self.radars = self:RadarSystems(radar_arguments)
 	self.aimTargeting = TargetingSystem(radar_config.EXTERNAL_AIM_TARGETING_CHANNEL,"PLAYER",false,false,self.radars,radar_config.DRONE_ID,radar_config.DRONE_TYPE)
 	self.orbitTargeting = TargetingSystem(radar_config.EXTERNAL_ORBIT_TARGETING_CHANNEL,"PLAYER",false,false,self.radars,radar_config.DRONE_ID,radar_config.DRONE_TYPE)

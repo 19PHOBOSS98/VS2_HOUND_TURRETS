@@ -27,6 +27,11 @@ function DroneBaseClassSP:initSensors(configs)
 	self.sensors = SensorsSP(configs)
 end
 
+function DroneBaseClassSP:initSensorRadar(radar_config)
+	radar_config.radar_range=radar_config.radar_range or 500
+	self.sensors:initRadar(radar_config)
+end
+
 --pre-calculate thruster placement compensation:
 function DroneBaseClassSP:getInertiaTensors()
 	return self.sensors.shipReader:getInertiaMatrix()

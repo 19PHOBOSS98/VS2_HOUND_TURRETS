@@ -340,6 +340,10 @@ function DroneBaseClass:initModemChannels(channels_config)
 	end
 end
 
+function DroneBaseClass:initSensorRadar(radar_config)
+	self.sensors:initRadar(radar_config)
+end
+
 function DroneBaseClass:initRadar(radar_config)
 	
 	radar_config = radar_config or {}
@@ -348,7 +352,7 @@ function DroneBaseClass:initRadar(radar_config)
 	radar_config.DRONE_ID = self.ship_constants.DRONE_ID
 	radar_config.DRONE_TYPE = self.ship_constants.DRONE_TYPE
 	
-	self.sensors:initRadar(radar_config)
+	self:initSensorRadar(radar_config)
 	
 	function DroneBaseClass:scrollUpShipTargets()
 		self.sensors:scrollUpShipTargets()
