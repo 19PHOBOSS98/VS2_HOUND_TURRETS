@@ -10,7 +10,6 @@ function SomePeripheralsGoggle:init(configs)
 	self.EXTERNAL_GOGGLE_PORT_CHANNEL = configs.channels_config.EXTERNAL_GOGGLE_PORT_CHANNEL or 0
 	self.max_distance = configs.max_distance or 300
 	self.prev_distance = self.max_distance
-
 	SomePeripheralsGoggle.superClass.init(self)
 end
 
