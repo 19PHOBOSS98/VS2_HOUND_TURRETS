@@ -74,14 +74,6 @@ function SensorsSP:RadarSystems(radar_arguments)
 							end,
 							
 				["PLAYER"] = function (is_auto_aim)
-								--[[--temp
-								local player = self.goggle.getInfo()
-								
-								if (is_auto_aim) then
-									player = self.targeting:getPlayerTarget(is_auto_aim)
-								end
-								]]--
-								
 								player = self.targeting:getPlayerTarget(is_auto_aim)
 								if (player) then
 									self.targeted_players_undetected = false

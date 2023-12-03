@@ -13,6 +13,21 @@ function SomePeripheralsRadar:scan(range)
 	return self.peripheral.scan(range)
 end
 
+--[[
+--TEMP--
+function SomePeripheralsRadar:scanForShips(range)
+	return self.peripheral.scanForShips(range)
+end
+
+function SomePeripheralsRadar:scanForPlayers(range)
+	return self.peripheral.scanForPlayers(range)
+end
+
+function SomePeripheralsRadar:scanForEntities(range)
+	return self.peripheral.scanForEntities(range)
+end
+]]--
+
 function SomePeripheralsRadar:Targeting(arguments)
 	local spr = self
 	return{
@@ -42,7 +57,7 @@ function SomePeripheralsRadar:Targeting(arguments)
 		ship_targets = {},
 		player_targets = {},
 		mob_targets = {},
-		
+
 		updateTargets = function(self)--DEPRECATED
 			local targets = self:getTargetList(self)
 			self.ship_targets = {}
@@ -63,19 +78,16 @@ function SomePeripheralsRadar:Targeting(arguments)
 			end
 		end,
 		
-		--[[
-		--TEMP--
 		updateShipTargets = function(self) 
-			self.ship_targets = spr:scanForShips() 
+			self.ship_targets = spr:scanForShips(self.range) 
 		end,
 		updatePlayerTargets = function(self) 
-			self.player_targets = spr:scanForPlayers() 
+			self.player_targets = spr:scanForPlayers(self.range) 
 		end,
 		updateMobTargets = function(self) 
-			self.mob_targets = spr:scanForEntities() 
+			self.mob_targets = spr:scanForEntities(self.range) 
 		end,
-		},
-		]]--
+
 		
 		getTargetUpdatingThreads = function(self)
 			local rdr = self
@@ -83,6 +95,7 @@ function SomePeripheralsRadar:Targeting(arguments)
 				function()--DEPRECATED
 					rdr:updateTargets()
 				end,
+
 				--[[
 				--TEMP--
 				function()
@@ -92,7 +105,7 @@ function SomePeripheralsRadar:Targeting(arguments)
 					rdr:updatePlayerTargets()
 				end,
 				function()
-					rdr:updateMobTargets()
+					rdr:updateMobTargets()--resource intensive
 				end,
 				]]--
 			}
