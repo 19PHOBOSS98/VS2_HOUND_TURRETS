@@ -557,6 +557,26 @@ function DroneBaseClass:receiveCommand()
 	self:resetRedstone()
 end
 
+function DroneBaseClass:initPID(max_lin_acc,max_ang_acc)
+	self.pos_PID = pidcontrollers.PID_Continuous_Vector(self.ship_constants.PID_SETTINGS.POS.P,
+											self.ship_constants.PID_SETTINGS.POS.I,
+											self.ship_constants.PID_SETTINGS.POS.D,
+											-max_lin_acc,max_lin_acc)
+	
+	self.rot_x_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.X.P,
+													self.ship_constants.PID_SETTINGS.ROT.X.I,
+													self.ship_constants.PID_SETTINGS.ROT.X.D,
+													-max_ang_acc[1][1],max_ang_acc[1][1])
+	self.rot_y_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.Y.P,
+													self.ship_constants.PID_SETTINGS.ROT.Y.I,
+													self.ship_constants.PID_SETTINGS.ROT.Y.D,
+													-max_ang_acc[2][1],max_ang_acc[2][1])
+	self.rot_z_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.Z.P,
+													self.ship_constants.PID_SETTINGS.ROT.Z.I,
+													self.ship_constants.PID_SETTINGS.ROT.Z.D,
+													-max_ang_acc[3][1],max_ang_acc[3][1])
+end
+
 function DroneBaseClass:calculateMovement()
 	
 	local min_time_step = 0.05 --how fast the computer should continuously loop (the max is 0.05 for ComputerCraft)
@@ -689,48 +709,8 @@ function DroneBaseClass:calculateMovement()
 	
 	
 	--PID Controllers--
+	self:initPID(max_linear_acceleration,max_angular_acceleration)
 	
-	local pos_PID = pidcontrollers.PID_Continuous_Vector(	self.ship_constants.PID_SETTINGS.POS.P,
-											self.ship_constants.PID_SETTINGS.POS.I,
-											self.ship_constants.PID_SETTINGS.POS.D,
-											-max_linear_acceleration,max_linear_acceleration)
-
-	local rot_x_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.X.P,
-													self.ship_constants.PID_SETTINGS.ROT.X.I,
-													self.ship_constants.PID_SETTINGS.ROT.X.D,
-													-max_angular_acceleration.x,max_angular_acceleration.x)
-	local rot_y_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.Y.P,
-													self.ship_constants.PID_SETTINGS.ROT.Y.I,
-													self.ship_constants.PID_SETTINGS.ROT.Y.D,
-													-max_angular_acceleration.y,max_angular_acceleration.y)
-	local rot_z_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.Z.P,
-													self.ship_constants.PID_SETTINGS.ROT.Z.I,
-													self.ship_constants.PID_SETTINGS.ROT.Z.D,
-													-max_angular_acceleration.z,max_angular_acceleration.z)
-	--self:debugProbe({LEGACY_max_angular_acceleration=max_angular_acceleration})
-	--[[
-	local pos_PID = pidcontrollers.PID_Discrete_Vector(	self.ship_constants.PID_SETTINGS.POS.P,
-											self.ship_constants.PID_SETTINGS.POS.I,
-											self.ship_constants.PID_SETTINGS.POS.D,
-											-max_linear_acceleration,max_linear_acceleration,
-											min_time_step)
-
-	local rot_x_PID = pidcontrollers.PID_Discrete_Scalar(self.ship_constants.PID_SETTINGS.ROT.X.P,
-													self.ship_constants.PID_SETTINGS.ROT.X.I,
-													self.ship_constants.PID_SETTINGS.ROT.X.D,
-													-max_angular_acceleration.x,max_angular_acceleration.x,
-													min_time_step)
-	local rot_y_PID = pidcontrollers.PID_Discrete_Scalar(self.ship_constants.PID_SETTINGS.ROT.Y.P,
-													self.ship_constants.PID_SETTINGS.ROT.Y.I,
-													self.ship_constants.PID_SETTINGS.ROT.Y.D,
-													-max_angular_acceleration.y,max_angular_acceleration.y,
-													min_time_step)
-	local rot_z_PID = pidcontrollers.PID_Discrete_Scalar(self.ship_constants.PID_SETTINGS.ROT.Z.P,
-													self.ship_constants.PID_SETTINGS.ROT.Z.I,
-													self.ship_constants.PID_SETTINGS.ROT.Z.D,
-													-max_angular_acceleration.z,max_angular_acceleration.z,
-													min_time_step)
-	]]--
 	--Error Based Distributed PWM Algorithm by NikZapp for finer control over redstone thrusters--
 	local linear_pwm = utilities.pwm()
 	local angular_pwm = utilities.pwm()
@@ -754,9 +734,9 @@ function DroneBaseClass:calculateMovement()
 		self.rotation_error = getQuaternionRotationError(self.target_rotation,self.ship_rotation)
 		--self:debugProbe({LEGACY_rotation_error=self.rotation_error})
 		local pid_output_angular_acceleration = vector.new(0,0,0)
-		pid_output_angular_acceleration.x = rot_x_PID:run(self.rotation_error.x)
-		pid_output_angular_acceleration.y = rot_y_PID:run(self.rotation_error.y)
-		pid_output_angular_acceleration.z = rot_z_PID:run(self.rotation_error.z)
+		pid_output_angular_acceleration.x = self.rot_x_PID:run(self.rotation_error.x)
+		pid_output_angular_acceleration.y = self.rot_y_PID:run(self.rotation_error.y)
+		pid_output_angular_acceleration.z = self.rot_z_PID:run(self.rotation_error.z)
 		--self:debugProbe({LEGACY_ang_acc_pid=pid_output_angular_acceleration})
 		local net_torque = vector.new(0,0,0)
 		net_torque.x = pid_output_angular_acceleration:dot(self.ship_constants.LOCAL_INERTIA_TENSOR.x)
@@ -776,8 +756,9 @@ function DroneBaseClass:calculateMovement()
 		
 		--FOR LINEAR MOVEMENT--
 		self.position_error = getLocalPositionError(self.target_global_position,self.ship_global_position,self.ship_rotation)
-		local pid_output_linear_acceleration = pos_PID:run(self.position_error)
 		
+		local pid_output_linear_acceleration = self.pos_PID:run(self.position_error)
+
 		local local_gravity_acceleration = self.ship_rotation:inv():rotateVector3(gravity_acceleration_vector)
 		local net_linear_acceleration = pid_output_linear_acceleration:sub(local_gravity_acceleration)
 	
