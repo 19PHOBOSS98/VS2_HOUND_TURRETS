@@ -147,7 +147,7 @@ function pidcontrollers.PID_Continuous_Scalar(p,i,d,clamp_parameter_min,clamp_pa
 	}
 end
 
-function pidcontrollers.PID_Discrete_Vector(p,i,d,clamp_parameter_min,clamp_parameter_max,sample_interval)
+function pidcontrollers.PID_Discrete_Vector(p,i,d,clamp_parameter_min,clamp_parameter_max)
 	return{p=p,i=i,d=d,
 	error=vector.new(0,0,0),
 	prev_error=vector.new(0,0,0),
@@ -155,8 +155,17 @@ function pidcontrollers.PID_Discrete_Vector(p,i,d,clamp_parameter_min,clamp_para
 	integral=vector.new(0,0,0),
 	continue_integral_compounding=vector.new(1,1,1),
 	is_same_sign=vector.new(0,0,0),
-
+	sample_interval=0.05,
+	prev_t=os.clock(),
+	
+	updateSampleInterval=function(self)
+		local t = os.clock()
+		self.sample_interval = t - self.prev_t
+		self.prev_t = t
+	end,
+	
 	run=function(self, error_vector)
+			self:updateSampleInterval()
 			local error,prev_error,derivative
 			local integral = vector.new(0,0,0)
 
@@ -165,7 +174,7 @@ function pidcontrollers.PID_Discrete_Vector(p,i,d,clamp_parameter_min,clamp_para
 			error_sign = sign_vector3(error)
 
 			--derivative = (input:sub(self.last_input)):div(0.05)-- anti derivative kick
-			derivative = (error:sub(self.error)):div(sample_interval)-- had to go back to default derivative :(
+			derivative = (error:sub(self.error))/math.max(self.sample_interval,0.05)-- had to go back to default derivative :(
 			
 			-- need to clamp integral to account for pwm thruster saturation --
 			--https://youtu.be/NVLXCwc8HzM--
@@ -176,9 +185,9 @@ function pidcontrollers.PID_Discrete_Vector(p,i,d,clamp_parameter_min,clamp_para
 			err_x_cont.y = err_x_cont.y*self.continue_integral_compounding.y
 			err_x_cont.z = err_x_cont.z*self.continue_integral_compounding.z
 			
-			local disc_integ_err = self.prev_error:add(err_x_cont:add(self.error:mul(2)))
+			local disc_integ_err = self.prev_error+err_x_cont+self.error*2
 			
-			integral = self.integral:add(disc_integ_err:mul(sample_interval*0.5))
+			integral = self.integral+(disc_integ_err*self.sample_interval*0.5)
 			
 			self.derivative = derivative
 			self.integral = integral
@@ -211,7 +220,7 @@ function pidcontrollers.PID_Discrete_Vector(p,i,d,clamp_parameter_min,clamp_para
 	}
 end
 
-function pidcontrollers.PID_Discrete_Scalar(p,i,d,clamp_parameter_min,clamp_parameter_max,sample_interval)
+function pidcontrollers.PID_Discrete_Scalar(p,i,d,clamp_parameter_min,clamp_parameter_max)
 	return{p=p,i=i,d=d,
 	error=0,
 	prev_error = 0,
@@ -219,22 +228,31 @@ function pidcontrollers.PID_Discrete_Scalar(p,i,d,clamp_parameter_min,clamp_para
 	integral=0,
 	continue_integral_compounding=1,
 	is_same_sign=0,
-
+	sample_interval=0.05,
+	prev_t=os.clock(),
+	
+	updateSampleInterval=function(self)
+		local t = os.clock()
+		self.sample_interval = t - self.prev_t
+		self.prev_t = t
+	end,
+	
 	run=function(self, err)
+			self:updateSampleInterval()
 			local error,prev_error,derivative
 			local integral = 0
 			error = err
 			error_sign = sign(error)
 			
 			--derivative = (input-self.last_input)/0.05-- anti derivative kick
-			derivative = (error-self.error)/sample_interval-- anti derivative kick
+			derivative = (error-self.error)/math.max(self.sample_interval,0.05)-- anti derivative kick
 			
 			-- need to clamp integral to account for pwm thruster saturation --
 			--https://youtu.be/NVLXCwc8HzM--
 			
 			err_x_cont = error*self.continue_integral_compounding
 			
-			integral = self.integral + (sample_interval*0.5)*(err_x_cont+2*self.error+self.prev_error)
+			integral = self.integral + (self.sample_interval*0.5)*(err_x_cont+2*self.error+self.prev_error)
 			
 			self.prev_error = self.error
 			self.error = error
