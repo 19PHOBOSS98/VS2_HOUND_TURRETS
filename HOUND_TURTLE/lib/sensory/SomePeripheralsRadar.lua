@@ -77,11 +77,9 @@ function SomePeripheralsRadar:Targeting(arguments)
 				function()
 					rdr:updatePlayerTargets()
 				end,
-				--[[
 				function()
 					rdr:updateMobTargets()--resource intensive
 				end,
-				]]--
 			}
 			return targetingThreads
 		end,
