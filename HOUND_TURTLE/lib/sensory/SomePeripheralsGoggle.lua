@@ -44,7 +44,7 @@ function SomePeripheralsGoggle:getDistance()
 	end
 
 	for k, v in pairs(self.peripheral.getConnected()) do
-		local item = v.raycast(self.max_distance, {0, 0, 1}, false, true, false, true)
+		local item = v.raycast(self.max_distance, {0, 0, 1}, false, true, true)--make sure to use some-peripherals version 00.12+
 		if (item.distance) then
 			self:updatePrevDistance(item.distance)
 		end
