@@ -415,7 +415,7 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 						local aim_z = vector.new()
 						
 						local range = htb:getManualRange(htb:getRangeFindingMode())
-						
+						self:debugProbe({range=range})
 						if (aim_target_mode == orbit_target_mode) then
 							
 							aim_z = target_orbit_orientation:localPositiveZ()
