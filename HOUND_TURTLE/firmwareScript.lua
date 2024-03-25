@@ -1,11 +1,6 @@
-local HoundTurretBaseCreateVault = require "lib.tilt_ships.HoundTurretBaseCreateVault"
-local HoundTurretCreateVault8Barrel = require "lib.tilt_ships.HoundTurretCreateVault8Barrel"
-local HoundTurretCreateVault16Barrel = require "lib.tilt_ships.HoundTurretCreateVault16Barrel"
-
+local HoundTurretBase = require "lib.tilt_ships.HoundTurretBase"
 local HoundTurretBaseInfiniteAmmo = require "lib.tilt_ships.HoundTurretBaseInfiniteAmmo"
-local HoundTurretInfiniteAmmo8Barrel = require "lib.tilt_ships.HoundTurretInfiniteAmmo8Barrel"
-local HoundTurretInfiniteAmmo16Barrel = require "lib.tilt_ships.HoundTurretInfiniteAmmo16Barrel"
-
+local HoundTurretBaseCreateVault = require "lib.tilt_ships.HoundTurretBaseCreateVault"
 
 local instance_configs = {
 	radar_config = {
@@ -18,31 +13,33 @@ local instance_configs = {
 		DRONE_ID = 101,
 		THRUSTER_TIER = 5,
 		THRUSTER_TABLE_DIRECTORY = "./input_thruster_table/thruster_table.json",
-		--[[PID_SETTINGS=
+		--[[
+		PID_SETTINGS=
 		{
 			POS = {
-				P = 5,
+				P = 4,
 				I = 0,
-				D = 4
+				D = 5
 			},
 			ROT = {
 				X = {
 					P = 0.15,
-					I = 0.15,
-					D = 0.1
+					I = 0.08,
+					D = 0.15
 				},
 				Y = {
-					P = 0.15,
-					I = 0.15,
-					D = 0.1
+					P = 0.04,
+					I = 0.05,
+					D = 0.05
 				},
 				Z = {
 					P = 0.15,
-					I = 0.15,
-					D = 0.1
+					I = 0.08,
+					D = 0.15
 				}
 			}
-		},]]--
+		},
+		]]--
 	},
 	channels_config = {
 		DEBUG_TO_DRONE_CHANNEL = 9,
@@ -65,5 +62,5 @@ local instance_configs = {
 }
 
 
-local drone = HoundTurretInfiniteAmmo8Barrel(instance_configs)
+local drone = HoundTurretBase(instance_configs)
 drone:run()
