@@ -28,7 +28,7 @@ function DroneBaseClassSP:initSensors(configs)
 end
 
 function DroneBaseClassSP:initSensorRadar(radar_config)
-	radar_config.radar_range=radar_config.radar_range or 500
+	radar_config.radar_range=radar_config.radar_range or 200
 	self.sensors:initRadar(radar_config)
 end
 
@@ -154,6 +154,26 @@ function DroneBaseClassSP:initFlightConstants()
 	return min_time_step,ship_mass,gravity_acceleration_vector,JACOBIAN_TRANSPOSE,max_linear_acceleration,max_angular_acceleration
 end
 
+function DroneBaseClassSP:initPID(max_lin_acc,max_ang_acc)
+	self.pos_PID = pidcontrollers.PID_Discrete_Vector(	self.ship_constants.PID_SETTINGS.POS.P,
+											self.ship_constants.PID_SETTINGS.POS.I,
+											self.ship_constants.PID_SETTINGS.POS.D,
+											-max_lin_acc,max_lin_acc)
+
+	self.rot_x_PID = pidcontrollers.PID_Discrete_Scalar(self.ship_constants.PID_SETTINGS.ROT.X.P,
+													self.ship_constants.PID_SETTINGS.ROT.X.I,
+													self.ship_constants.PID_SETTINGS.ROT.X.D,
+													-max_ang_acc[1][1],max_ang_acc[1][1])
+	self.rot_y_PID = pidcontrollers.PID_Discrete_Scalar(self.ship_constants.PID_SETTINGS.ROT.Y.P,
+													self.ship_constants.PID_SETTINGS.ROT.Y.I,
+													self.ship_constants.PID_SETTINGS.ROT.Y.D,
+													-max_ang_acc[2][1],max_ang_acc[2][1])
+	self.rot_z_PID = pidcontrollers.PID_Discrete_Scalar(self.ship_constants.PID_SETTINGS.ROT.Z.P,
+													self.ship_constants.PID_SETTINGS.ROT.Z.I,
+													self.ship_constants.PID_SETTINGS.ROT.Z.D,
+													-max_ang_acc[3][1],max_ang_acc[3][1])
+end
+
 function DroneBaseClassSP:calculateMovement()
 	local min_time_step,
 	ship_mass,
@@ -161,24 +181,8 @@ function DroneBaseClassSP:calculateMovement()
 	JACOBIAN_TRANSPOSE,
 	max_linear_acceleration,
 	max_angular_acceleration = self:initFlightConstants()
-
-	local pos_PID = pidcontrollers.PID_Continuous_Vector(	self.ship_constants.PID_SETTINGS.POS.P,
-											self.ship_constants.PID_SETTINGS.POS.I,
-											self.ship_constants.PID_SETTINGS.POS.D,
-											-max_linear_acceleration,max_linear_acceleration)
+	self:initPID(max_linear_acceleration,max_angular_acceleration)
 	
-	local rot_x_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.X.P,
-													self.ship_constants.PID_SETTINGS.ROT.X.I,
-													self.ship_constants.PID_SETTINGS.ROT.X.D,
-													-max_angular_acceleration[1][1],max_angular_acceleration[1][1])
-	local rot_y_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.Y.P,
-													self.ship_constants.PID_SETTINGS.ROT.Y.I,
-													self.ship_constants.PID_SETTINGS.ROT.Y.D,
-													-max_angular_acceleration[2][1],max_angular_acceleration[2][1])
-	local rot_z_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.Z.P,
-													self.ship_constants.PID_SETTINGS.ROT.Z.I,
-													self.ship_constants.PID_SETTINGS.ROT.Z.D,
-													-max_angular_acceleration[3][1],max_angular_acceleration[3][1])
 	self.pwmMatrixList = utilities.PwmMatrixList(10)
 	
 	self:customPreFlightLoopBehavior()
@@ -200,10 +204,11 @@ function DroneBaseClassSP:calculateMovement()
 		--self:debugProbe({NEW_rotation_error=self.rotation_error})
 		local pid_output_angular_acceleration = matrix(
 		{
-			{rot_x_PID:run(self.rotation_error.x)},
-			{rot_y_PID:run(self.rotation_error.y)},
-			{rot_z_PID:run(self.rotation_error.z)}
+			{self.rot_x_PID:run(self.rotation_error.x)},
+			{self.rot_y_PID:run(self.rotation_error.y)},
+			{self.rot_z_PID:run(self.rotation_error.z)}
 		})
+		--self:debugProbe({xpidsampleint=self.rot_x_PID.sample_interval})
 		--self:debugProbe({NEW_ang_acc_pid=pid_output_angular_acceleration})
 		local net_torque = matrix.mul(self.ship_constants.LOCAL_INERTIA_TENSOR,pid_output_angular_acceleration)
 		
@@ -211,7 +216,7 @@ function DroneBaseClassSP:calculateMovement()
 		
 		--FOR LINEAR MOVEMENT--
 		self.position_error = getLocalPositionError(self.target_global_position,self.ship_global_position,self.ship_rotation)
-		local pid_output_linear_acceleration = pos_PID:run(self.position_error)
+		local pid_output_linear_acceleration = self.pos_PID:run(self.position_error)
 		--self:debugProbe({position_error=self.position_error})
 		--self:debugProbe({pid_output_linear_acceleration2=pid_output_linear_acceleration})
 		
