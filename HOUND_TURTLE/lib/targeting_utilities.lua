@@ -101,6 +101,7 @@ function targeting_utilities.TargetingSystem(
 				if(spatial_attributes == nil and self.targeting_mode == self.TARGET_MODE[2]) then
 					self.targeting_mode = self.TARGET_MODE[1]
 					spatial_attributes = self.radarSystems:getRadarTarget(self.targeting_mode,self.auto_aim_active)
+					
 				end
 				self.current_target:updateTargetSpatials(spatial_attributes)
 			end

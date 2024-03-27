@@ -103,13 +103,12 @@ function SomePeripheralsRadar:Targeting(arguments)
 									target = self.shipListScroller:getCurrentItem(scanned_targets)
 									ship_id = tostring(target.id)
 									if (ship_id == prev_ship_id) then
-										break
+										return nil
 									end
 								end
 								return self.shipListScroller:getCurrentItem(scanned_targets)
 							end
 						else
-
 							if (type(scanned_targets) == "table") then
 								for i,trg in ipairs(scanned_targets) do
 									if (tostring(trg.id) == tostring(self.designated_ship_id)) then
@@ -117,14 +116,11 @@ function SomePeripheralsRadar:Targeting(arguments)
 									end
 								end
 							end
-							self.designated_ship_id = self.prev_designated_ship_id
+							--self.designated_ship_id = self.prev_designated_ship_id
 							return nil
-
-							
 						end
 					end
 				end
-				return self.shipListScroller:getCurrentItem(scanned_targets)
 			end
 			return nil
 		end,
@@ -135,39 +131,32 @@ function SomePeripheralsRadar:Targeting(arguments)
 				if (scanned_targets) then
 					local list_size = #scanned_targets
 					self.playerListScroller:updateListSize(list_size)
-					--if (list_size>1) then
-						if (is_auto_aim) then
-							local target = self.playerListScroller:getCurrentItem(scanned_targets)
-							if (target) then
-								local name = tostring(target.nickname)
-								local prev_name = name
-								while (self.player_name_whitelist[name]) do
-									
-									self.playerListScroller:skip()
-									target = self.playerListScroller:getCurrentItem(scanned_targets)
-									name = tostring(target.nickname)
-									if (name == prev_name) then
-										break
-									end
-								end
-								return self.playerListScroller:getCurrentItem(scanned_targets)
-							end
-						else--remove when using goggle link
-
-							if (type(scanned_targets) == "table") then
-								for i,trg in ipairs(scanned_targets) do
-									if (tostring(trg.nickname) == tostring(self.designated_player_name)) then
-										return trg
-									end
+					if (is_auto_aim) then
+						local target = self.playerListScroller:getCurrentItem(scanned_targets)
+						if (target) then
+							local name = tostring(target.nickname)
+							local prev_name = name
+							while (self.player_name_whitelist[name]) do					
+								self.playerListScroller:skip()
+								target = self.playerListScroller:getCurrentItem(scanned_targets)
+								name = tostring(target.nickname)
+								if (name == prev_name) then
+									return nil
 								end
 							end
-							return nil
-
-							
+							return self.playerListScroller:getCurrentItem(scanned_targets)
 						end
+					else
+						if (type(scanned_targets) == "table") then
+							for i,trg in ipairs(scanned_targets) do
+								if (tostring(trg.nickname) == tostring(self.designated_player_name)) then
+									return trg
+								end
+							end
+						end
+						return nil
 					end
-				--end
-				--return self.playerListScroller:getCurrentItem(scanned_targets)
+				end
 			end
 			return nil
 		end,

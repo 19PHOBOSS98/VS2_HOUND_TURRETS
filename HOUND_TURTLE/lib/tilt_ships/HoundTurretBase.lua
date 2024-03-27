@@ -378,86 +378,94 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 		
 		--term.clear()
 		--term.setCursorPos(1,1)
+				
+		--self:debugProbe({auto_aim=self:getAutoAim()})
 		
-		
-		
-		if(not self.sensors.radars.targeted_players_undetected) then
-			
-			
-			
-			if (self.remoteControlManager.rc_variables.run_mode) then
-				local target_aim = self.sensors.aimTargeting:getTargetSpatials()
-				local target_orbit = self.sensors.orbitTargeting:getTargetSpatials()
-				
-				local target_aim_position = target_aim.position
-				local target_aim_velocity = target_aim.velocity
-				local target_aim_orientation = target_aim.orientation
-				
-				local target_orbit_position = target_orbit.position
-				local target_orbit_orientation = target_orbit.orientation
-				
-				--Aiming
-				local bullet_convergence_point = vector.new(0,1,0)
-				if (self.sensors.aimTargeting:isUsingExternalRadar()) then
-					bullet_convergence_point = getTargetAimPos(target_aim_position,target_aim_velocity,self.ship_global_position,self.ship_global_velocity,htb.bullet_velocity_squared)
-					htb.activate_weapons = (self.rotation_error:length() < 10) and self.remoteControlManager.rc_variables.weapons_free
-				else
-					if (self:getAutoAim()) then
-						bullet_convergence_point = getTargetAimPos(target_aim_position,target_aim_velocity,self.ship_global_position,self.ship_global_velocity,htb.bullet_velocity_squared)
-						--only fire when aim is close enough and if user says "fire"
-						htb.activate_weapons = (self.rotation_error:length() < 10) and self.remoteControlManager.rc_variables.weapons_free  
-					else	
-					--Manual Aiming
-						
-						local aim_target_mode = self:getTargetMode(true)
-						local orbit_target_mode = self:getTargetMode(false)
-						
-						local aim_z = vector.new()
-						
-						local range = htb:getManualRange(htb:getRangeFindingMode())
-						self:debugProbe({range=range})
-						if (aim_target_mode == orbit_target_mode) then
-							
-							aim_z = target_orbit_orientation:localPositiveZ()
-							
-							bullet_convergence_point = target_orbit_position:add(aim_z:mul(range))
-						else
-							aim_z = target_aim_orientation:localPositiveZ()
-							if (self.remoteControlManager.rc_variables.player_mounting_ship) then
-								aim_z = target_orbit_orientation:rotateVector3(aim_z)
-							end
-							bullet_convergence_point = target_aim_position:add(aim_z:mul(range))
-						end
-						
-						htb.activate_weapons = self.remoteControlManager.rc_variables.weapons_free
-						
-					end
-				end
-
-				local aiming_vector = bullet_convergence_point:sub(self.ship_global_position):normalize()
-
-				self.target_rotation = quaternion.fromToRotation(self.target_rotation:localPositiveY(),aiming_vector)*self.target_rotation
-				
-				--positioning
-				if (self.remoteControlManager.rc_variables.dynamic_positioning_mode) then
-					if (self.remoteControlManager.rc_variables.hunt_mode) then
-						self.target_global_position = adjustOrbitRadiusPosition(self.target_global_position,target_aim_position,25)
-						--[[
-						--position the drone behind target player's line of sight--
-						local formation_position = aim_target.orientation:rotateVector3(vector.new(0,0,25))
-						target_global_position = formation_position:add(aim_target.position)
-						]]--
-						
-					else --guard_mode
-						local formation_position = target_orbit_orientation:rotateVector3(self.remoteControlManager.rc_variables.orbit_offset)
-						--self:debugProbe({target_orbit_position=target_orbit_position,target_aim_position=target_aim_position})
-						self.target_global_position = formation_position:add(target_orbit_position)
-					end
-				end
-			end
-		else
+		if(self.sensors.radars.targeted_players_undetected) then
 			htb:reset_guns()
 		end
+			
+		if (self.remoteControlManager.rc_variables.run_mode) then
+			local target_aim = self.sensors.aimTargeting:getTargetSpatials()
+			local target_orbit = self.sensors.orbitTargeting:getTargetSpatials()
+			
+			local target_aim_position = target_aim.position
+			local target_aim_velocity = target_aim.velocity
+			local target_aim_orientation = target_aim.orientation
+			
+			local target_orbit_position = target_orbit.position
+			local target_orbit_orientation = target_orbit.orientation
+			
+			
+			--self:debugProbe({target_orbit_position=target_orbit_position,target_orbit_orientation=target_orbit_orientation})
+			--Aiming
+			local bullet_convergence_point = vector.new(0,1,0)
+			if (self.sensors.aimTargeting:isUsingExternalRadar()) then
+				bullet_convergence_point = getTargetAimPos(target_aim_position,target_aim_velocity,self.ship_global_position,self.ship_global_velocity,htb.bullet_velocity_squared)
+				htb.activate_weapons = (self.rotation_error:length() < 10) and self.remoteControlManager.rc_variables.weapons_free
+			else
+				if (self:getAutoAim()) then
+					bullet_convergence_point = getTargetAimPos(target_aim_position,target_aim_velocity,self.ship_global_position,self.ship_global_velocity,htb.bullet_velocity_squared)
+					--only fire when aim is close enough and if user says "fire"
+					htb.activate_weapons = (self.rotation_error:length() < 10) and self.remoteControlManager.rc_variables.weapons_free  
+				else	
+				--Manual Aiming
+					
+					local aim_target_mode = self:getTargetMode(true)
+					local orbit_target_mode = self:getTargetMode(false)
+					
+					local aim_z = vector.new()
+					
+					local range = htb:getManualRange(htb:getRangeFindingMode())
+					--self:debugProbe({range=range})
+					if (aim_target_mode == orbit_target_mode) then
+						
+						aim_z = target_orbit_orientation:localPositiveZ()
+						
+						bullet_convergence_point = target_orbit_position:add(aim_z:mul(range))
+					else
+						aim_z = target_aim_orientation:localPositiveZ()
+						if (self.remoteControlManager.rc_variables.player_mounting_ship) then
+							aim_z = target_orbit_orientation:rotateVector3(aim_z)
+						end
+						bullet_convergence_point = target_aim_position:add(aim_z:mul(range))
+					end
+					
+					htb.activate_weapons = self.remoteControlManager.rc_variables.weapons_free
+					
+				end
+			end
+
+			local aiming_vector = bullet_convergence_point:sub(self.ship_global_position):normalize()
+
+			self.target_rotation = quaternion.fromToRotation(self.target_rotation:localPositiveY(),aiming_vector)*self.target_rotation
+			
+			--positioning
+			if (self.remoteControlManager.rc_variables.dynamic_positioning_mode) then
+			self:debugProbe({
+					target_global_position=self.target_global_position,
+					target_aim_position=target_aim_position})
+				if (self.remoteControlManager.rc_variables.hunt_mode) then
+					
+					
+				
+					self.target_global_position = adjustOrbitRadiusPosition(self.target_global_position,target_aim_position,25)
+					
+					
+					--[[
+					--position the drone behind target player's line of sight--
+					local formation_position = aim_target.orientation:rotateVector3(vector.new(0,0,25))
+					target_global_position = formation_position:add(aim_target.position)
+					]]--
+					
+				else --guard_mode
+					local formation_position = target_orbit_orientation:rotateVector3(self.remoteControlManager.rc_variables.orbit_offset)
+					--self:debugProbe({target_orbit_position=target_orbit_position,target_aim_position=target_aim_position})
+					self.target_global_position = formation_position:add(target_orbit_position)
+				end
+			end
+		end
+
 	end
 end
 
