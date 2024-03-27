@@ -49,16 +49,16 @@ local thrusters = {
 
 --tttvc_sp.nbt & 12ttvc_sp.nbt--
 local thrusters = {
-	{vector.new(-28669942,117,12290049),"up"}, --BOW_U
-	{vector.new(-28669942,116,12290050),"east"}, --BOW_CCF
-	{vector.new(-28669942,116,12290048),"west"}, --BOW_CCB
-	{vector.new(-28669941,116,12290049),"south"}, --BOW_CL
-	{vector.new(-28669943,116,12290049),"north"}, --BOW_CR
-	{vector.new(-28669942,113,12290049),"down"}, --STERN_D
-	{vector.new(-28669942,114,12290050),"east"}, --STERN_CCF
-	{vector.new(-28669942,114,12290048),"west"}, --STERN_CCB
-	{vector.new(-28669941,114,12290049),"south"}, --STERN_CL
-	{vector.new(-28669943,114,12290049),"north"}, --STERN_CR
+	{vector.new(-28669949,-48,12290061),"up"}, --BOW_U
+	{vector.new(-28669949,-49,12290062),"east"}, --BOW_CCF
+	{vector.new(-28669949,-49,12290060),"west"}, --BOW_CCB
+	{vector.new(-28669948,-49,12290061),"south"}, --BOW_CL
+	{vector.new(-28669950,-49,12290061),"north"}, --BOW_CR
+	{vector.new(-28669949,-52,12290061),"down"}, --STERN_D
+	{vector.new(-28669949,-51,12290062),"east"}, --STERN_CCF
+	{vector.new(-28669949,-51,12290060),"west"}, --STERN_CCB
+	{vector.new(-28669948,-51,12290061),"south"}, --STERN_CL
+	{vector.new(-28669950,-51,12290061),"north"}, --STERN_CR
 }
 
 local thrusterTableBuilder = ThrusterTableBuilder(thrusters,"./input_thruster_table/thruster_table.json")
