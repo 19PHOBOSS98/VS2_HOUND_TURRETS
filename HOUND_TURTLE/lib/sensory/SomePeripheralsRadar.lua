@@ -57,14 +57,17 @@ function SomePeripheralsRadar:Targeting(arguments)
 		player_targets = {},
 		mob_targets = {},
 		
-		updateShipTargets = function(self) 
-			self.ship_targets = spr:scanForShips(self.range) 
+		updateShipTargets = function(self)
+			self.ship_targets = spr:scanForShips(self.range)
+			self.shipListScroller:updateListSize(#self.ship_targets)
 		end,
 		updatePlayerTargets = function(self) 
-			self.player_targets = spr:scanForPlayers(self.range) 
+			self.player_targets = spr:scanForPlayers(self.range)
+			self.playerListScroller:updateListSize(#self.player_targets)
 		end,
 		updateMobTargets = function(self) 
-			self.mob_targets = spr:scanForEntities(self.range) 
+			self.mob_targets = spr:scanForEntities(self.range)
+			self.mobListScroller:updateListSize(#self.mob_targets)
 		end,
 
 		
