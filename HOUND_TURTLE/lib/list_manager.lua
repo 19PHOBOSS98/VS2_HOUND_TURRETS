@@ -25,14 +25,17 @@ function list_manager.IndexedListScroller()
 		return list_manager.loopScrollIndex(self.target_index-1,self.list_size)
 	end,
 	scrollUp=function(self)
+		if(self.list_size==0)then return end
 		self.index_scroll_direction = 1
 		self.target_index = list_manager.loopScrollIndex(self.target_index+self.index_scroll_direction,self.list_size)
 	end,
 	scrollDown=function(self)
+		if(self.list_size==0)then return end
 		self.index_scroll_direction = -1
 		self.target_index = list_manager.loopScrollIndex(self.target_index+self.index_scroll_direction,self.list_size)
 	end,
 	skip=function(self)
+		if(self.list_size==0)then return end
 		self.target_index = list_manager.loopScrollIndex(self.target_index+self.index_scroll_direction,self.list_size)
 	end,
 	getCurrentItem=function(self,list)
