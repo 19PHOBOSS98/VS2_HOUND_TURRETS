@@ -48,7 +48,7 @@ function HoundTurretBase:alternateFire(step)
 	local seq_2 = step==1
 	--{modem_block, redstoneIntegrator_side}
 	self:activateAllGuns({"front","right"},seq_1)
-	self:activateAllGuns({"front","back"},seq_2)	
+	self:activateAllGuns({"front","back"},seq_2)
 end
 
 function HoundTurretBase:CustomThreads()
@@ -72,6 +72,17 @@ function HoundTurretBase:CustomThreads()
 	}
 	return threads
 end
+
+function HoundTurretBase:getProjectileSpeed()
+	--based on create-big-cannons auto-cannons
+	AUTOCANNON_BARREL_LENGTH = 7 --the recoil block counts as a barrel
+	bulletSpeed = AUTOCANNON_BARREL_LENGTH/0.05 --blocks per sec
+	return bulletSpeed
+end
+
+function HoundTurretBase:onGunsActivation() end
+
+function HoundTurretBase:onGunsDeactivation() end
 
 --overridable functions--
 
@@ -138,9 +149,9 @@ function HoundTurretBase:initCustom(custom_config)
 	self.ALTERNATING_FIRE_SEQUENCE_COUNT = custom_config.ALTERNATING_FIRE_SEQUENCE_COUNT or 2
 	self.GUNS_COOLDOWN_DELAY = custom_config.GUNS_COOLDOWN_DELAY or 0.05 --in seconds
 	self.activate_weapons = false
-	
-	self.AUTOCANNON_BARREL_LENGTH = custom_config.AUTOCANNON_BARREL_LENGTH
-	
+
+	self.PROJECTILE_SPEED = self.getProjectileSpeed()
+
 	self.bulletRange = IntegerScroller(100,15,300)
 	function HoundTurretBase:changeBulletRange(delta)
 		self.bulletRange:set(delta)
@@ -274,6 +285,7 @@ function HoundTurretBase:reset_guns()
 			cntr.setOutput("west",false)
 		end
 	end
+	self:onGunsDeactivation()
 end
 
 function HoundTurretBase:activateGun(index,toggle)
@@ -289,6 +301,7 @@ function HoundTurretBase:activateAllGuns(index,toggle)
 	for _,gun in pairs(self.gun_controllers_hub[index[1]]) do
 		gun.setOutput(index[2],toggle)
 	end
+	self:onGunsActivation()
 end
 --custom--
 
@@ -358,7 +371,7 @@ end
 function HoundTurretBase:overrideShipFrameCustomPreFlightLoopBehavior()
 	local htb = self
 	function self.ShipFrame:customPreFlightLoopBehavior()
-		local bullet_velocity = htb.AUTOCANNON_BARREL_LENGTH/0.05
+		local bullet_velocity = htb.PROJECTILE_SPEED
 		htb.bullet_velocity_squared = bullet_velocity*bullet_velocity
 		htb:setHuntMode(self.remoteControlManager.rc_variables.hunt_mode)	--forces auto_aim to activate if hunt_mode is set to true on initialization
 														--toggle it on runtime as you wish
@@ -478,12 +491,10 @@ function HoundTurretBase:init(instance_configs)
 	self:addShipFrameCustomThread()
 	self:overrideShipFrameCustomPreFlightLoopBehavior()
 	self:overrideShipFrameCustomFlightLoopBehavior()
-	
-	
-	custom_config = {
-		AUTOCANNON_BARREL_LENGTH = 7, --the recoil block counts as a barrel
-	}
-	self:initCustom(custom_config)
+
+	hound_custom_config = instance_configs.hound_custom_config or {}
+
+	self:initCustom(hound_custom_config)
 	HoundTurretBase.superClass.init(self)
 end
 --overridden functions--
