@@ -86,6 +86,7 @@ local instance_configs = {
 	},
 	hound_custom_config = {
 		ALTERNATING_FIRE_SEQUENCE_COUNT = 3,
+		--GUNS_COOLDOWN_DELAY = 0.2,
 	},
 }
 
@@ -137,7 +138,9 @@ function drone:alternateFire(step)
 	local seq_2 = step==1
 	local seq_3 = step==2
 	--{modem_block, redstoneIntegrator_side}
+	
 	self:activateAllGuns({"front","front"},seq_1)
+	self:activateAllGuns({"front","right"},seq_1)
 	self:activateAllGuns({"front","left"},seq_2)
 	self:activateAllGuns({"front","top"},seq_3)
 end
