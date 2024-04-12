@@ -79,7 +79,7 @@ function DroneBaseClassSP:buildJacobianTranspose(thruster_table)
 			abs(min(0,force.y==0 and 0 or 1/force.y)),
 			max(0,force.z==0 and 0 or 1/force.z),
 			abs(min(0,force.z==0 and 0 or 1/force.z)),
-			
+		
 			max(0,torque.x==0 and 0 or 1/torque.x),
 			abs(min(0,torque.x==0 and 0 or 1/torque.x)),
 			max(0,torque.y==0 and 0 or 1/torque.y),
@@ -88,44 +88,18 @@ function DroneBaseClassSP:buildJacobianTranspose(thruster_table)
 			abs(min(0,torque.z==0 and 0 or 1/torque.z)),
 		}
 	end
-	
-	local jacobian = matrix.transpose(jacobian_transpose)
 
-	jacobian = matrix.replace( jacobian,function(e) return e>0 and 1 or 0 end)
-	
-	local count_matrix = matrix(10,1,1)
-	local inv_thruster_count_per_movement = matrix.mul(jacobian,count_matrix)
-	inv_thruster_count_per_movement = matrix.replace(inv_thruster_count_per_movement,function(e) return 1/e end)
-	
+	-- local jacobian = matrix.transpose(jacobian_transpose)
+	-- jacobian = matrix.replace( jacobian,function(e) return e>0 and 1 or 0 end)
+	-- local count_matrix = matrix(10,1,1)
+	-- local inv_thruster_count_per_movement = matrix.mul(jacobian,count_matrix)
+	-- inv_thruster_count_per_movement = matrix.replace(inv_thruster_count_per_movement,function(e) return 1/e end)
 	-- for i,v in ipairs(jacobian_transpose) do
 	-- 	for ii,vv in ipairs(v) do
 	-- 		jacobian_transpose[i][ii] = vv*inv_thruster_count_per_movement[ii][1]
 	-- 	end
 	-- end
 
-	-- local total_torque = {0,0,0,0,0,0}
-
-	-- for i,v in ipairs(jacobian_transpose) do
-	-- 	for ii=1,6,1 do
-	-- 		jacobian_transpose[i][ii] = jacobian_transpose[i][ii]*inv_thruster_count_per_movement[ii][1]
-	-- 	end
-		
-	-- 	for jj=7,12,1 do
-	-- 		if(jacobian_transpose[i][jj]~=0)then
-	-- 			total_torque[jj-6] = total_torque[jj-6]+(1/jacobian_transpose[i][jj])
-	-- 		end
-	-- 	end
-
-	-- end
-	-- --the total torque is distributed depending on how much each thruster contributes to torque
-	-- for i,v in ipairs(jacobian_transpose) do
-	-- 	for ii=7,12,1 do
-	-- 		if(jacobian_transpose[i][ii]~=0) then 
-	-- 			torque_contribution_percentage = (1/jacobian_transpose[i][ii])/total_torque[ii-6]
-	-- 			jacobian_transpose[i][ii] = jacobian_transpose[i][ii]*torque_contribution_percentage
-	-- 		end
-	-- 	end
-	-- end
 	local total = {0,0,0,0,0,0,0,0,0,0,0,0}
 
 	for i,v in ipairs(jacobian_transpose) do
