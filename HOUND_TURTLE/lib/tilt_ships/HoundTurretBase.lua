@@ -148,6 +148,8 @@ function HoundTurretBase:initCustom(custom_config)
 	self:initializeGunPeripherals()
 	self.ALTERNATING_FIRE_SEQUENCE_COUNT = custom_config.ALTERNATING_FIRE_SEQUENCE_COUNT or 2
 	self.GUNS_COOLDOWN_DELAY = custom_config.GUNS_COOLDOWN_DELAY or 0.05 --in seconds
+	self.HUNT_MODE_FOLLOW_DISTANCE = custom_config.HUNT_MODE_FOLLOW_DISTANCE or 25
+	self.AIM_ERROR_TOLERANCE = custom_config.AIM_ERROR_TOLERANCE or 10
 	self.activate_weapons = false
 
 	self.PROJECTILE_SPEED = self.getProjectileSpeed()
@@ -415,12 +417,12 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 			local bullet_convergence_point = vector.new(0,1,0)
 			if (self.sensors.aimTargeting:isUsingExternalRadar()) then
 				bullet_convergence_point = getTargetAimPos(target_aim_position,target_aim_velocity,self.ship_global_position,self.ship_global_velocity,htb.bullet_velocity_squared)
-				htb.activate_weapons = (self.rotation_error:length() < 10) and self.remoteControlManager.rc_variables.weapons_free
+				htb.activate_weapons = (self.rotation_error:length() < htb.AIM_ERROR_TOLERANCE) and self.remoteControlManager.rc_variables.weapons_free
 			else
 				if (self:getAutoAim()) then
 					bullet_convergence_point = getTargetAimPos(target_aim_position,target_aim_velocity,self.ship_global_position,self.ship_global_velocity,htb.bullet_velocity_squared)
 					--only fire when aim is close enough and if user says "fire"
-					htb.activate_weapons = (self.rotation_error:length() < 10) and self.remoteControlManager.rc_variables.weapons_free  
+					htb.activate_weapons = (self.rotation_error:length() < htb.AIM_ERROR_TOLERANCE) and self.remoteControlManager.rc_variables.weapons_free  
 				else	
 				--Manual Aiming
 					
@@ -462,7 +464,7 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 					
 					
 				
-					self.target_global_position = adjustOrbitRadiusPosition(self.target_global_position,target_aim_position,25)
+					self.target_global_position = adjustOrbitRadiusPosition(self.target_global_position,target_aim_position,htb.HUNT_MODE_FOLLOW_DISTANCE)
 					
 					
 					--[[
