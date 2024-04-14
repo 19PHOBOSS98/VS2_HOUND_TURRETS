@@ -34,25 +34,25 @@ function TenThrusterTemplateVerticalCompactSP:init(instance_configs)
 	configs.ship_constants_config.PID_SETTINGS = configs.ship_constants_config.PID_SETTINGS or-----------------------
 	{
 		POS = {
-			P = 5,
-			I = 0,
-			D = 4
+			P = 0.7,
+			I = 0.001,
+			D = 1
 		},
 		ROT = {
 			X = {
-				P = 0.15,
-				I = 0.08,
-				D = 0.15
+				P = 0.04,
+				I = 0.001,
+				D = 0.05
 			},
 			Y = {
-				P = 0.15,
-				I = 0.08,
-				D = 0.15
+				P = 0.04,
+				I = 0.001,
+				D = 0.05
 			},
 			Z = {
-				P = 0.15,
-				I = 0.08,
-				D = 0.15
+				P = 0.05,
+				I = 0.001,
+				D = 0.05
 			}
 		}
 	}

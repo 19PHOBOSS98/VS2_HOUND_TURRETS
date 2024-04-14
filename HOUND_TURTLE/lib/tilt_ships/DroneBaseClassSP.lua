@@ -188,6 +188,23 @@ function DroneBaseClassSP:initPID(max_lin_acc,max_ang_acc)
 													self.ship_constants.PID_SETTINGS.ROT.Z.I,
 													self.ship_constants.PID_SETTINGS.ROT.Z.D,
 													-max_ang_acc[3][1],max_ang_acc[3][1])
+
+	-- self.pos_PID = pidcontrollers.PID_Continuous_Vector(	self.ship_constants.PID_SETTINGS.POS.P,
+	-- 										self.ship_constants.PID_SETTINGS.POS.I,
+	-- 										self.ship_constants.PID_SETTINGS.POS.D,
+	-- 										-max_lin_acc,max_lin_acc)
+	-- self.rot_x_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.X.P,
+	-- 												self.ship_constants.PID_SETTINGS.ROT.X.I,
+	-- 												self.ship_constants.PID_SETTINGS.ROT.X.D,
+	-- 												-max_ang_acc[1][1],max_ang_acc[1][1])
+	-- self.rot_y_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.Y.P,
+	-- 												self.ship_constants.PID_SETTINGS.ROT.Y.I,
+	-- 												self.ship_constants.PID_SETTINGS.ROT.Y.D,
+	-- 												-max_ang_acc[2][1],max_ang_acc[2][1])
+	-- self.rot_z_PID = pidcontrollers.PID_Continuous_Scalar(self.ship_constants.PID_SETTINGS.ROT.Z.P,
+	-- 												self.ship_constants.PID_SETTINGS.ROT.Z.I,
+	-- 												self.ship_constants.PID_SETTINGS.ROT.Z.D,
+	-- 												-max_ang_acc[3][1],max_ang_acc[3][1])
 end
 
 function DroneBaseClassSP:calculateMovement()

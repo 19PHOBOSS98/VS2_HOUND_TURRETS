@@ -13,7 +13,7 @@ local instance_configs = {
 		DRONE_ID = 101,
 		THRUSTER_TIER = 5,
 		THRUSTER_TABLE_DIRECTORY = "./input_thruster_table/thruster_table.json",
-		--[[
+--[[
 		PID_SETTINGS=
 		{
 			POS = {
@@ -24,44 +24,45 @@ local instance_configs = {
 			ROT = {
 				X = {
 					P = 0.15,
-					I = 0.08,
+					I = 0.01,
 					D = 0.15
 				},
 				Y = {
 					P = 0.04,
-					I = 0.05,
+					I = 0.01,
 					D = 0.05
 				},
 				Z = {
 					P = 0.15,
-					I = 0.08,
+					I = 0.01,
 					D = 0.15
 				}
 			}
 		},
 		]]--
+
 		PID_SETTINGS=
 		{
 			POS = {
-				P = 4,
-				I = 0,
-				D = 5
+				P = 0.7,
+				I = 0.001,
+				D = 1
 			},
 			ROT = {
 				X = {
-					P = 0.09,
-					I = 0.01,
-					D = 0.15
+					P = 0.04,
+					I = 0.001,
+					D = 0.05
 				},
 				Y = {
 					P = 0.04,
-					I = 0.03,
+					I = 0.001,
 					D = 0.05
 				},
 				Z = {
-					P = 0.10,
-					I = 0.01,
-					D = 0.15
+					P = 0.05,
+					I = 0.001,
+					D = 0.05
 				}
 			}
 		},
