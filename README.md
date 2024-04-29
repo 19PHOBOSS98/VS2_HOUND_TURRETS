@@ -2,15 +2,18 @@
 
 Video Guide:
 
-Hound Turrets are semi-autonomous drones equipable with an assortment of weapon loadouts built using Valkyrien Skies 2 and an assortment of other mods and addons:
-VS-Tournament,
-VS-Computers,
-ComputerCraft,
-Advanced-Peripherals,
-Some-Peripherals,
-Ars Nouveau,
-Open Combat Utilities,
-Create:Big Cannons
+Hound Turrets are semi-autonomous drones equipable with an assortment of weapons and loadouts built using Valkyrien Skies 2 and an assortment of other mods and addons:
+
+* VS-Tournament
+* VS-Computers
+* ComputerCraft
+* Advanced-Peripherals
+* Some-Peripherals
+* Ars Nouveau
+* Open Combat Utilities
+* Create:Big Cannons
+* [*MIRAGE*](https://youtu.be/LpBEGNvNQbg?si=tj3YhFO8ey5nTeGB)
+
 just to name a few...
 
 Devlog Playlist:
