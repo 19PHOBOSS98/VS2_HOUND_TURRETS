@@ -1,0 +1,6 @@
+activeLow:true,
+files:[
+hound_16b_skin_steampunk],
+move:[-3,-8,-4],
+pScale:[1.03,1,1.03],
+pMove:[-0.03,0,-0.03]

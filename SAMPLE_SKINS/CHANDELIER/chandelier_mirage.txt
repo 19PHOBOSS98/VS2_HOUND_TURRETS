@@ -1,0 +1,6 @@
+activeLow:true,
+files:[chandelier],
+move:[-10,20,-10],
+pMove:[-0.002,-24.998,-0.002],
+pScale:[1.002,1,1.002],
+loop:false

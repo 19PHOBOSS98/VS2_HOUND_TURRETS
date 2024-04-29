@@ -1,0 +1,6 @@
+activeLow:true,
+files:[hammer_of_dan_off,hammer_of_dan_on],
+move:[2,-9,-21],
+pScale:[2,2,2],
+pMove:[-6.25,-4,2.75],
+loop:false

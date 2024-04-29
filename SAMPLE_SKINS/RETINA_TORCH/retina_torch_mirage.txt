@@ -1,0 +1,6 @@
+activeLow:true,
+files:[retina_torch_off,retina_torch_on],
+move:[-7,9,-7],
+pMove:[-0.167,-19,-0.167],
+pScale:[1.5,1.5,1.5],
+loop:false

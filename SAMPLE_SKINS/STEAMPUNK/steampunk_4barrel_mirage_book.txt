@@ -1,0 +1,8 @@
+activeLow:true,
+move:[-2,12,-4],
+pScale:[1.03,1.03,1.03],
+pMove:[0.015,-18.015,0.015],
+pRotatePivot:[0.5,0.5,-0.5],
+pRotate:[0,180,0],
+files:[hound_4b_skin_steampunk],
+loop:false

@@ -1,0 +1,7 @@
+activeLow:true,
+files:[hound_8b_skin_steampunk],
+move:[-4,0,3],
+pMove:[-1.03,-7,-9.015],
+pRotatePivot:[0.5,0.5,8.5],
+pRotate:[0,270,0],
+pScale:[1.03,1.03,1.03]

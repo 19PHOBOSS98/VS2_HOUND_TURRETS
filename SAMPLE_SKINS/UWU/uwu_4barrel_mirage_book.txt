@@ -1,0 +1,6 @@
+activeLow:true,
+move:[-2,0,2],
+pScale:[1,1,1],
+pMove:[-1,-4,-7],
+files:[hound_4b_skin_uwu],
+loop:false
