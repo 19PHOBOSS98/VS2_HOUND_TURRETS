@@ -13,34 +13,6 @@ local instance_configs = {
 		DRONE_ID = 101,
 		THRUSTER_TIER = 5,
 		THRUSTER_TABLE_DIRECTORY = "./input_thruster_table/thruster_table.json",
---[[
-		PID_SETTINGS=
-		{
-			POS = {
-				P = 4,
-				I = 0,
-				D = 5
-			},
-			ROT = {
-				X = {
-					P = 0.15,
-					I = 0.01,
-					D = 0.15
-				},
-				Y = {
-					P = 0.04,
-					I = 0.01,
-					D = 0.05
-				},
-				Z = {
-					P = 0.15,
-					I = 0.01,
-					D = 0.15
-				}
-			}
-		},
-		]]--
-
 		PID_SETTINGS=
 		{
 			POS = {
@@ -90,15 +62,19 @@ local instance_configs = {
 		--GUNS_COOLDOWN_DELAY = 0.2,
 	},
 }
+local drone = HoundTurretBase(instance_configs)
 
+--local drone = HoundTurretBaseInfiniteAmmo(instance_configs) --USE THIS IF YOU WANT TO USE ONE OF THE WIRELESS CREATE BIG CANNONS VARIANTS
+
+--local drone = HoundTurretBaseCreateVault(instance_configs) --USE THIS IF YOU WANT TO USE ONE OF THE VAULT CREATE BIG CANNONS VARIANTS
+
+--COMMENT THIS OUT IF YOU ARE NOT USING THE MAGITECH VARIANTS--
 repulsor = peripheral.find("opencu:repulsor")
 
 repulsor.recalibrateByIdx(1)
 repulsor.setRadius(5)
 repulsor.setForce(1)
 repulsor.setVector(0,140,0)
-
-local drone = HoundTurretBase(instance_configs)
 
 function drone:getProjectileSpeed()
 	return 140
@@ -145,5 +121,6 @@ function drone:alternateFire(step)
 	self:activateAllGuns({"front","left"},seq_2)
 	self:activateAllGuns({"front","top"},seq_3)
 end
+--COMMENT THIS OUT IF YOU ARE NOT USING THE MAGITECH VARIANTS--
 
 drone:run()
