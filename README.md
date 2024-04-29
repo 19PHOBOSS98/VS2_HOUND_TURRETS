@@ -1,6 +1,11 @@
 # VS2_HOUND_TURRETS
 
-Video Guide:
+Guide Video:
+![HOUND_GUIDE(1)](https://github.com/19PHOBOSS98/VS2_HOUND_TURRETS/assets/37253663/106ca96d-811e-447b-900e-9903621f2329)
+
+https://youtu.be/SonVcV6iPUk?si=5WX4n1hrqEeyZ30b
+
+Release Video:
 ![0427(8)](https://github.com/19PHOBOSS98/VS2_HOUND_TURRETS/assets/37253663/aa8fef8d-e5f7-4632-bfd8-da79cb1864bb)
 
 https://youtu.be/V3nzxjTneVU?si=ramcfe8Tinrjuo_m
