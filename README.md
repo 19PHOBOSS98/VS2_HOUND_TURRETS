@@ -25,6 +25,9 @@ Hound Turrets are semi-autonomous drones equipable with an assortment of weapons
 
 just to name a few...
 
+Swarm UI Remote Control Github Repo:
+https://github.com/19PHOBOSS98/SWARM_UI
+
 Devlog Playlist:
 https://youtube.com/playlist?list=PL1bsn0MYd0U5VvkUDa2hqaQ9E-eU9RFDA&amp;si=-IV53wNeFcpwyjib
 
