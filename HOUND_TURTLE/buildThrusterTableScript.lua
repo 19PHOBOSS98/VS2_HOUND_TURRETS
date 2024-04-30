@@ -48,6 +48,7 @@ local thrusters = {
 }]]--
 
 --tttvc_sp.nbt & 12ttvc_sp.nbt--
+--THE DIRECTIONS MUST BE IN ORDER SO DON'T CHANGE THEM, JUST REPLACE THE COORDINATES--
 local thrusters = {
 	{vector.new(-28628989,123,12290054),"up"}, --BOW_U
 	{vector.new(-28628989,122,12290055),"east"}, --BOW_CCF
