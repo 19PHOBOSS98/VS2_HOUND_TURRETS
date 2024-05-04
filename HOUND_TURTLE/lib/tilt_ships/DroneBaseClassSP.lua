@@ -258,7 +258,7 @@ function DroneBaseClassSP:calculateMovement()
 		--self:debugProbe({net_linear_acceleration2=net_linear_acceleration})
 		local net_force = net_linear_acceleration*ship_mass
 		
-		self:debugProbe({net_linear_acceleration=net_linear_acceleration,net_force=net_force})
+		--self:debugProbe({net_linear_acceleration=net_linear_acceleration,net_force=net_force})
 		
 		local net = matrix(
 		{
