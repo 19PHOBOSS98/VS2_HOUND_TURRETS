@@ -1,5 +1,5 @@
 local ThrusterTableBuilder = require "lib.jacobian.ThrusterTableBuilder"
-local ShipReaderSP = require "lib.sensory.ShipReaderSP"
+
 local JSON = require "lib.JSON"
 --[[
 --ttthc_sp.nbt--
@@ -48,21 +48,19 @@ local thrusters = {
 }]]--
 
 --tttvc_sp.nbt & 12ttvc_sp.nbt--
---THE DIRECTIONS MUST BE IN ORDER SO DON'T CHANGE THEM, JUST REPLACE THE COORDINATES--
 local thrusters = {
-	{vector.new(-28628989,123,12290054),"up"}, --BOW_U
-	{vector.new(-28628989,122,12290055),"east"}, --BOW_CCF
-	{vector.new(-28628989,122,12290053),"west"}, --BOW_CCB
-	{vector.new(-28628988,122,12290054),"south"}, --BOW_CL
-	{vector.new(-28628990,122,12290054),"north"}, --BOW_CR
-	{vector.new(-28628989,119,12290054),"down"}, --STERN_D
-	{vector.new(-28628989,120,12290055),"east"}, --STERN_CCF
-	{vector.new(-28628989,120,12290053),"west"}, --STERN_CCB
-	{vector.new(-28628988,120,12290054),"south"}, --STERN_CL
-	{vector.new(-28628990,120,12290054),"north"}, --STERN_CR
+	{vector.new(-28669937,-45,12290064),"up"}, --BOW_U
+	{vector.new(-28669937,-46,12290065),"east"}, --BOW_CCF
+	{vector.new(-28669937,-46,12290063),"west"}, --BOW_CCB
+	{vector.new(-28669936,-46,12290064),"south"}, --BOW_CL
+	{vector.new(-28669938,-46,12290064),"north"}, --BOW_CR
+	{vector.new(-28669937,-49,12290064),"down"}, --STERN_D
+	{vector.new(-28669937,-48,12290065),"east"}, --STERN_CCF
+	{vector.new(-28669937,-48,12290063),"west"}, --STERN_CCB
+	{vector.new(-28669936,-48,12290064),"south"}, --STERN_CL
+	{vector.new(-28669938,-48,12290064),"north"}, --STERN_CR
 }
 
 local thrusterTableBuilder = ThrusterTableBuilder(thrusters,"./input_thruster_table/thruster_table.json")
 
-local shipReaderSP = ShipReaderSP()
-thrusterTableBuilder:build(shipReaderSP:getShipYardCenterOfMass())-- writes a thruster_table.json file
+thrusterTableBuilder:build(ship.getShipyardPosition())-- writes a thruster_table.json file
