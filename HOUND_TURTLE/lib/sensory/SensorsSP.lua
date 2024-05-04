@@ -3,7 +3,8 @@ local quaternion = require "lib.quaternions"
 local player_spatial_utilities = require "lib.player_spatial_utilities"
 
 
-local ShipReaderSP = require "lib.sensory.ShipReaderSP"
+--local ShipReader = require "lib.sensory.ShipReaderSP"
+local ShipReader = require "lib.sensory.ShipReader2"
 local SomePeripheralsRadar = require "lib.sensory.SomePeripheralsRadar"
 local SomePeripheralsGoggle = require "lib.sensory.SomePeripheralsGoggle"
 
@@ -19,7 +20,8 @@ local SensorsSP = Sensors:subclass()
 function SensorsSP:init(configs)
 	SensorsSP.superClass.init(self)
 	
-	self.shipReader = ShipReaderSP()
+	--self.shipReader = ShipReaderSP()
+	self.shipReader = ShipReader()
 	self.radar = SomePeripheralsRadar()
 	self.goggle = SomePeripheralsGoggle(configs)
 

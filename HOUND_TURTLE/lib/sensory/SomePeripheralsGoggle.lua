@@ -39,7 +39,7 @@ function SomePeripheralsGoggle:listenToExternalPort()
 end
 
 function SomePeripheralsGoggle:getDistance()
-	if (self.use_external_goggle_port) then
+	if (self.use_external_goggle_port or self.peripheral==nil) then
 		return self.prev_distance
 	end
 
