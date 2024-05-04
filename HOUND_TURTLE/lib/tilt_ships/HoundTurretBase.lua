@@ -432,7 +432,7 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 					local range = htb:getManualRange(htb:getRangeFindingMode())
 					--self:debugProbe({range=range})
 					if (aim_target_mode == orbit_target_mode) then
-						
+						--print("range: ",range)
 						aim_z = target_orbit_orientation:localPositiveZ()
 						
 						bullet_convergence_point = target_orbit_position:add(aim_z:mul(range))
