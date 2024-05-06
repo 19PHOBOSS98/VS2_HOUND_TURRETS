@@ -34,7 +34,8 @@ function ThrusterTableBuilder:build(center_of_mass)
 	self.thruster_table = {} --{{radius, direction}}
 	for i,v in pairs(self.input_thrusters) do
 		self.thruster_table[i] = {}
-		radius = v[1]-center_of_mass
+		centered_thruster_pos = v[1] + vector.new(0.5,0.5,0.5)
+		radius = centered_thruster_pos-center_of_mass
 		radius.x = math.floor(radius.x*100)/100
 		radius.y = math.floor(radius.y*100)/100
 		radius.z = math.floor(radius.z*100)/100
