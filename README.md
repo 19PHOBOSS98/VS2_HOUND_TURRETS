@@ -35,3 +35,7 @@ Map Download:
 https://www.planetminecraft.com/project/hound-turret-demo-world/
 
 Thank you to Khanaris for the map "venue":https://www.planetminecraft.com/project/red-tern-island/
+
+# UPDATE:
+Since VS-Tournament 1.1.0 beta 4.1 [released](https://github.com/alex-s168/VS_tournament_continued/releases/tag/1.1.0-beta.4.1), it came with a few new features. It added an API for ComputerCraft to get the thruster positions by code.
+I updated my library to work with the new release and *now you don't have to list down the thruster positions anymore*. The code should do that for you now. Just drop in the code and let it fly :)
