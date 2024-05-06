@@ -68,7 +68,6 @@ function SomePeripheralsRadar:Targeting(arguments)
 			if(not spr.peripheral) then
 				return
 			end
-			print("thread is running")
 			self.player_targets = spr:scanForPlayers(self.range)
 			self.playerListScroller:updateListSize(#self.player_targets)
 		end,
