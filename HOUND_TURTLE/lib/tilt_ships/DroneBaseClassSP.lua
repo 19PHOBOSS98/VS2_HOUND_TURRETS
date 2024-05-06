@@ -47,14 +47,60 @@ function DroneBaseClassSP:rotateInertiaTensors()
 													self.ship_constants.DEFAULT_NEW_LOCAL_SHIP_ORIENTATION)
 end
 
-function DroneBaseClassSP:getThrusterTableJSONFile()
-	self.ship_constants = self.ship_constants or {}
-	self.ship_constants.THRUSTER_TABLE_DIRECTORY = self.ship_constants.THRUSTER_TABLE_DIRECTORY or "./input_thruster_table/thruster_table.json"
-	local h = fs.open(self.ship_constants.THRUSTER_TABLE_DIRECTORY,"r")
-	serialized = h.readAll()
-	obj = JSON:decode(serialized)
+function DroneBaseClassSP:overrideThrusters(power)
+	local overide_power = {}
+	for i=1,12,1 do
+		overide_power[i] = power
+	end
+	local component_control_msg = self:composeComponentMessage(overide_power)
+	self:communicateWithComponent(component_control_msg)
+
+end
+
+function DroneBaseClassSP:getThrusterTable()
+	self:overrideThrusters(1)
+	os.sleep(0.1)
+	local thrusters = vst_components.get_thrusters()
+	self:overrideThrusters(0)
+
+	local thruster_table = {}
+
+	for i,thruster in pairs(thrusters) do
+		thruster_table[1+#thruster_table] = {}
+	end
+	
+	for i,thruster in pairs(thrusters) do
+		
+		local radius = vector.new(thruster.pos.x,thruster.pos.y,thruster.pos.z) - vector.new(0.5,0.5,0.5) -- tournament 1.1.0 beta 4.1 has the thruster pos value off by 0.5
+		
+		local direction = vector.new(thruster.force.x,thruster.force.y,thruster.force.z):normalize()
+		
+		local isBow = radius.y > 0
+		local idx_offset = isBow and 0 or 5
+
+		if(direction.y > 0) then
+			thruster_table[1] = {direction=direction,radius=radius}
+		elseif (direction.y < 0) then
+			thruster_table[6] = {direction=direction,radius=radius}
+		elseif (direction.x > 0) then--east
+			thruster_table[2+idx_offset] = {direction=direction,radius=radius}
+		elseif (direction.x < 0) then--west
+			thruster_table[3+idx_offset] = {direction=direction,radius=radius}
+		elseif (direction.z > 0) then--south
+			thruster_table[4+idx_offset] = {direction=direction,radius=radius}
+		elseif (direction.z < 0) then--north
+			thruster_table[5+idx_offset] = {direction=direction,radius=radius}
+		end
+
+		
+	end
+	--[[
+	local h = fs.open("./input_thruster_table/NEW_thruster_table.json","w")
+	h.writeLine(JSON:encode_pretty(thruster_table))
+	h.flush()
 	h.close()
-	return obj
+	]]--
+	return thruster_table
 end
 
 function DroneBaseClassSP:buildJacobianTranspose(thruster_table)
@@ -132,8 +178,8 @@ function DroneBaseClassSP:initFlightConstants()
 	
 	local max_redstone = 15
 	
-	local thruster_table = self:getThrusterTableJSONFile()
-	
+	local thruster_table = self:getThrusterTable()
+
 	local JACOBIAN_TRANSPOSE = matrix(self:buildJacobianTranspose(thruster_table))
 	
 	local base_thruster_force = self.ship_constants.MOD_CONFIGURED_THRUSTER_SPEED*self.ship_constants.THRUSTER_TIER--thruster force when powered with a redstone power of 1(from VS2-Tournament code)
@@ -167,7 +213,13 @@ function DroneBaseClassSP:initFlightConstants()
 	
 	local max_angular_acceleration = matrix.mul(self.ship_constants.LOCAL_INV_INERTIA_TENSOR,torque_saturation)
 	
-	return min_time_step,ship_mass,gravity_acceleration_vector,JACOBIAN_TRANSPOSE,max_linear_acceleration,max_angular_acceleration
+	self.min_time_step = min_time_step
+	self.ship_mass = ship_mass
+	self.gravity_acceleration_vector = gravity_acceleration_vector
+	self.JACOBIAN_TRANSPOSE = JACOBIAN_TRANSPOSE
+	self.max_linear_acceleration = max_linear_acceleration
+	self.max_angular_acceleration = max_angular_acceleration
+
 end
 
 function DroneBaseClassSP:initPID(max_lin_acc,max_ang_acc)
@@ -208,13 +260,10 @@ function DroneBaseClassSP:initPID(max_lin_acc,max_ang_acc)
 end
 
 function DroneBaseClassSP:calculateMovement()
-	local min_time_step,
-	ship_mass,
-	gravity_acceleration_vector,
-	JACOBIAN_TRANSPOSE,
-	max_linear_acceleration,
-	max_angular_acceleration = self:initFlightConstants()
-	self:initPID(max_linear_acceleration,max_angular_acceleration)
+
+	self:initFlightConstants()
+
+	self:initPID(self.max_linear_acceleration,self.max_angular_acceleration)
 	
 	self.pwmMatrixList = utilities.PwmMatrixList(10)
 	
@@ -223,6 +272,9 @@ function DroneBaseClassSP:calculateMovement()
 	local customFlightVariables = self:customPreFlightLoopVariables()
 	
 	while self.run_firmware do
+		if(self.ship_mass ~= ship.getMass()) then
+			self:initFlightConstants()
+		end
 		self:customFlightLoopBehavior(customFlightVariables)
 
 		self.ship_rotation = self.sensors.shipReader:getRotation(true)
@@ -253,10 +305,10 @@ function DroneBaseClassSP:calculateMovement()
 		--self:debugProbe({position_error=self.position_error})
 		--self:debugProbe({pid_output_linear_acceleration2=pid_output_linear_acceleration})
 		
-		local local_gravity_acceleration = self.ship_rotation:inv():rotateVector3(gravity_acceleration_vector)
+		local local_gravity_acceleration = self.ship_rotation:inv():rotateVector3(self.gravity_acceleration_vector)
 		local net_linear_acceleration = pid_output_linear_acceleration:sub(local_gravity_acceleration)
 		--self:debugProbe({net_linear_acceleration2=net_linear_acceleration})
-		local net_force = net_linear_acceleration*ship_mass
+		local net_force = net_linear_acceleration*self.ship_mass
 		
 		--self:debugProbe({net_linear_acceleration=net_linear_acceleration,net_force=net_force})
 		
@@ -281,9 +333,9 @@ function DroneBaseClassSP:calculateMovement()
 			{abs(min(0,net_torque[3][1]))}
 		})
 		
-		local thruster_redstone_power = matrix.mul(JACOBIAN_TRANSPOSE,net)
+		local thruster_redstone_power = matrix.mul(self.JACOBIAN_TRANSPOSE,net)
 		self:applyRedStonePower(thruster_redstone_power)
-		sleep(min_time_step)
+		sleep(self.min_time_step)
 	end
 end
 

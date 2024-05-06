@@ -112,7 +112,7 @@ function PathTracerDrone:overrideShipFrameGetCustomSettings()
 	local ptd = self
 	function self.ShipFrame.remoteControlManager:getCustomSettings()
 		return {
-			walk = false,
+			walk = ptd:walk(),
 		}
 	end
 end
@@ -151,7 +151,7 @@ function PathTracerDrone:overrideShipFrameCustomFlightLoopBehavior()
 		
 		--position
 		self.target_global_position = ptd.SPLINE_COORDS[ptd.tracker:getCurrentIndex()].pos
-		self:debugProbe({tracker_idx = ptd.tracker:getCurrentIndex()})
+		--self:debugProbe({tracker_idx = ptd.tracker:getCurrentIndex()})
 		local current_time = os.clock()
 		ptd.count = ptd.count+(current_time - ptd.prev_time)
 
