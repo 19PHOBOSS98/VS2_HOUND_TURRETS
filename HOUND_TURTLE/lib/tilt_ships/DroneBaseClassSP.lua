@@ -22,6 +22,14 @@ local DroneBaseClass = require "lib.tilt_ships.DroneBaseClass"
 
 local DroneBaseClassSP = DroneBaseClass:subclass()
 
+--OVERRIDABLE FUNCTIONS--
+function DroneBaseClassSP:organizeThrusterTable(thruster_table)
+
+	local new_thruster_table = {}
+
+	return new_thruster_table
+end
+--OVERRIDABLE FUNCTIONS--
 
 function DroneBaseClassSP:initSensors(configs)
 	self.sensors = SensorsSP(configs)
@@ -57,6 +65,7 @@ function DroneBaseClassSP:overrideThrusters(power)
 
 end
 
+
 function DroneBaseClassSP:getThrusterTable()
 	self:overrideThrusters(1)
 	os.sleep(0.1)
@@ -66,32 +75,12 @@ function DroneBaseClassSP:getThrusterTable()
 	local thruster_table = {}
 
 	for i,thruster in pairs(thrusters) do
-		thruster_table[1+#thruster_table] = {}
-	end
-	
-	for i,thruster in pairs(thrusters) do
 		
 		local radius = vector.new(thruster.pos.x,thruster.pos.y,thruster.pos.z) - vector.new(0.5,0.5,0.5) -- tournament 1.1.0 beta 4.1 has the thruster pos value off by 0.5
 		
 		local direction = vector.new(thruster.force.x,thruster.force.y,thruster.force.z):normalize()
 		
-		local isBow = radius.y > 0
-		local idx_offset = isBow and 0 or 5
-
-		if(direction.y > 0) then
-			thruster_table[1] = {direction=direction,radius=radius}
-		elseif (direction.y < 0) then
-			thruster_table[6] = {direction=direction,radius=radius}
-		elseif (direction.x > 0) then--east
-			thruster_table[2+idx_offset] = {direction=direction,radius=radius}
-		elseif (direction.x < 0) then--west
-			thruster_table[3+idx_offset] = {direction=direction,radius=radius}
-		elseif (direction.z > 0) then--south
-			thruster_table[4+idx_offset] = {direction=direction,radius=radius}
-		elseif (direction.z < 0) then--north
-			thruster_table[5+idx_offset] = {direction=direction,radius=radius}
-		end
-
+		thruster_table[1+#thruster_table] = {direction=direction,radius=radius}
 		
 	end
 	--[[
@@ -100,7 +89,7 @@ function DroneBaseClassSP:getThrusterTable()
 	h.flush()
 	h.close()
 	]]--
-	return thruster_table
+	return self:organizeThrusterTable(thruster_table)
 end
 
 function DroneBaseClassSP:buildJacobianTranspose(thruster_table)

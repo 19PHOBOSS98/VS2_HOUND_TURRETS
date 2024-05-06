@@ -60,6 +60,39 @@ function TenThrusterTemplateVerticalCompactSP:init(instance_configs)
 	TenThrusterTemplateVerticalCompactSP.superClass.init(self,configs)
 end
 
+function TenThrusterTemplateVerticalCompactSP:organizeThrusterTable(thruster_table)
+
+	local new_thruster_table = {}
+
+	for i,thruster in pairs(thruster_table) do
+		new_thruster_table[1+#new_thruster_table] = {}
+	end
+	
+	for i,thruster in pairs(thruster_table) do
+		local dir = thruster.direction
+		local rad = thruster.radius
+		
+		local isBow = rad.y > 0
+		local idx_offset = isBow and 0 or 5
+
+		if(dir.y > 0) then
+			new_thruster_table[1] = {direction=dir,radius=rad}
+		elseif (dir.y < 0) then
+			new_thruster_table[6] = {direction=dir,radius=rad}
+		elseif (dir.x > 0) then--east
+			new_thruster_table[2+idx_offset] = {direction=dir,radius=rad}
+		elseif (dir.x < 0) then--west
+			new_thruster_table[3+idx_offset] = {direction=dir,radius=rad}
+		elseif (dir.z > 0) then--south
+			new_thruster_table[4+idx_offset] = {direction=dir,radius=rad}
+		elseif (dir.z < 0) then--north
+			new_thruster_table[5+idx_offset] = {direction=dir,radius=rad}
+		end
+	end
+
+	return new_thruster_table
+end
+
 function TenThrusterTemplateVerticalCompactSP:composeComponentMessage(redstone_power)
 	local BOW_U = redstone_power[1]
 	local BOW_CCF = redstone_power[2]
@@ -79,6 +112,7 @@ function TenThrusterTemplateVerticalCompactSP:composeComponentMessage(redstone_p
 	}
 end
 
+--[[These Are Redstone Integrator Faces and NOT thruster directions]]--
 local group_component_map = 
 {
 	BOW = 
