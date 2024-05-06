@@ -58,7 +58,7 @@ function DroneBaseClassSP:getThrusterTableJSONFile()
 end
 
 function DroneBaseClassSP:buildJacobianTranspose(thruster_table)
-	local thruster_constants = self.ship_constants.MOD_CONFIGURED_THRUSTER_SPEED*self.ship_constants.THRUSTER_TIER*self.ship_constants.THRUSTER_TIER
+	local thruster_constants = self.ship_constants.MOD_CONFIGURED_THRUSTER_SPEED*self.ship_constants.THRUSTER_TIER
 	local inverse_new_default_ship_orientation = self.ship_constants.DEFAULT_NEW_LOCAL_SHIP_ORIENTATION:inv()
 	local jacobian_transpose = {}
 
@@ -136,7 +136,7 @@ function DroneBaseClassSP:initFlightConstants()
 	
 	local JACOBIAN_TRANSPOSE = matrix(self:buildJacobianTranspose(thruster_table))
 	
-	local base_thruster_force = self.ship_constants.MOD_CONFIGURED_THRUSTER_SPEED*self.ship_constants.THRUSTER_TIER*self.ship_constants.THRUSTER_TIER--thruster force when powered with a redstone power of 1(from VS2-Tournament code)
+	local base_thruster_force = self.ship_constants.MOD_CONFIGURED_THRUSTER_SPEED*self.ship_constants.THRUSTER_TIER--thruster force when powered with a redstone power of 1(from VS2-Tournament code)
 	
 	local minimum_radius_vector = vector.new(99999999,99999999,99999999)
 	local minimum_thruster_direction = vector.new(0,1,0)
