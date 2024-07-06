@@ -12,6 +12,12 @@ local PathTracerDrone = Object:subclass()
 function PathTracerDrone:setShipFrameClass(configs) --override this to set ShipFrame Template
 	self.ShipFrame = TenThrusterTemplateVerticalCompactSP(configs)
 end
+
+function PathTracerDrone:setCustomTargetRotationPathing(rotation,tangent,normal)
+	local new_rotation = quaternion.fromToRotation(rotation:localPositiveZ(), vector.new(0,1,0))*rotation
+	new_rotation = quaternion.fromToRotation(new_rotation:localPositiveY(), tangent)*new_rotation
+		return new_rotation
+end
 --overridable functions--
 
 --custom--
@@ -146,16 +152,18 @@ function PathTracerDrone:overrideShipFrameCustomFlightLoopBehavior()
 		local normal = ptd.SPLINE_COORDS[ptd.tracker:getCurrentIndex()].normal
 
 		--rotation
-		self.target_rotation = quaternion.fromToRotation(self.target_rotation:localPositiveY(), normal)*self.target_rotation
-		self.target_rotation = quaternion.fromToRotation(self.target_rotation:localPositiveZ(), tangent)*self.target_rotation
-		
+		--self.target_rotation = quaternion.fromToRotation(self.target_rotation:localPositiveX(), normal)*self.target_rotation
+		--self.target_rotation = quaternion.fromToRotation(self.target_rotation:localPositiveZ(), vector.new(0,1,0))*self.target_rotation
+		--self.target_rotation = quaternion.fromToRotation(self.target_rotation:localPositiveY(), tangent)*self.target_rotation
+		self.target_rotation = ptd:setCustomTargetRotationPathing(self.target_rotation,tangent,normal)
+
 		--position
 		self.target_global_position = ptd.SPLINE_COORDS[ptd.tracker:getCurrentIndex()].pos
 		--self:debugProbe({tracker_idx = ptd.tracker:getCurrentIndex()})
 		local current_time = os.clock()
 		ptd.count = ptd.count+(current_time - ptd.prev_time)
 
-		if (ptd.count > 0.1) then
+		if (ptd.count > ptd.STEP_SPEED) then
 			ptd.count = 0
 			if (ptd.rc_variables.walk) then
 				ptd.tracker:scrollUp()
@@ -176,6 +184,7 @@ end
 
 function PathTracerDrone:initCustom(custom_config)
 	self.SPLINE_COORDS = custom_config.SPLINE_COORDS or {}
+	self.STEP_SPEED = custom_config.STEP_SPEED or 0.1
 	self.tracker = IndexedListScroller()
 	self.tracker:updateListSize(#self.SPLINE_COORDS)
 	self.count = 0

@@ -1,16 +1,19 @@
 local HoundTurretBase = require "lib.tilt_ships.HoundTurretBase"
-local HoundTurretBaseInfiniteAmmo = require "lib.tilt_ships.HoundTurretBaseInfiniteAmmo"
-local HoundTurretBaseCreateVault = require "lib.tilt_ships.HoundTurretBaseCreateVault"
+
+
+local Path = require "lib.paths.Path"
+local path_utilities = require "lib.path_utilities"
 
 local instance_configs = {
 	radar_config = {
-		designated_ship_id = "3",
+		designated_ship_id = "14",
 		designated_player_name="PHO",
 		ship_id_whitelist={},
 		player_name_whitelist={},
 	},
 	ship_constants_config = {
-		DRONE_ID = 101,
+		--DRONE_ID = 202,
+		DRONE_ID = ship.getId(),
 		THRUSTER_TIER = 5,
 		THRUSTER_TABLE_DIRECTORY = "./input_thruster_table/thruster_table.json",
 		PID_SETTINGS=
@@ -55,26 +58,27 @@ local instance_configs = {
 		REPLY_DUMP_CHANNEL = 10000,
 	},
 	rc_variables = {
-		orbit_offset = vector.new(7,5,10),
+		orbit_offset = vector.new(5,5,5),
+	},
+	body_segment_custom_config = {
+		segment_delay = 5,
+		gap_length = 4,
 	},
 	hound_custom_config = {
-		ALTERNATING_FIRE_SEQUENCE_COUNT = 3,
+		ALTERNATING_FIRE_SEQUENCE_COUNT = 2,
 		--GUNS_COOLDOWN_DELAY = 0.2,
 	},
 }
-local drone = HoundTurretBase(instance_configs)
 
---local drone = HoundTurretBaseInfiniteAmmo(instance_configs) --USE THIS IF YOU WANT TO USE ONE OF THE WIRELESS CREATE BIG CANNONS VARIANTS
 
---local drone = HoundTurretBaseCreateVault(instance_configs) --USE THIS IF YOU WANT TO USE ONE OF THE VAULT CREATE BIG CANNONS VARIANTS
-
---COMMENT THIS OUT IF YOU ARE NOT USING THE MAGITECH VARIANTS--
 repulsor = peripheral.find("opencu:repulsor")
 
 repulsor.recalibrateByIdx(1)
 repulsor.setRadius(5)
 repulsor.setForce(1)
 repulsor.setVector(0,140,0)
+
+local drone = HoundTurretBase(instance_configs)
 
 function drone:getProjectileSpeed()
 	return 140
@@ -112,15 +116,19 @@ end
 
 function drone:alternateFire(step)
 	local seq_1 = step==0
-	local seq_2 = step==1
-	local seq_3 = step==2
+	-- local seq_2 = step==1
+	-- local seq_3 = step==2
 	--{modem_block, redstoneIntegrator_side}
 	
+	-- self:activateAllGuns({"front","front"},seq_1)
+	-- self:activateAllGuns({"front","right"},seq_1)
+	-- self:activateAllGuns({"front","left"},seq_2)
+	-- self:activateAllGuns({"front","top"},seq_3)
+
 	self:activateAllGuns({"front","front"},seq_1)
 	self:activateAllGuns({"front","right"},seq_1)
-	self:activateAllGuns({"front","left"},seq_2)
-	self:activateAllGuns({"front","top"},seq_3)
+	self:activateAllGuns({"front","left"},seq_1)
+	self:activateAllGuns({"front","top"},seq_1)
 end
---COMMENT THIS OUT IF YOU ARE NOT USING THE MAGITECH VARIANTS--
 
 drone:run()

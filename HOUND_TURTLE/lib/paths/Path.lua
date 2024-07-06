@@ -55,7 +55,7 @@ function Path:getNormalizedCoordsWithGradients(resolution,bLooped)
 end
 
 --https://stackoverflow.com/questions/25453159/getting-consistent-normals-from-a-3d-cubic-bezier-path--
-function Spline:getNormalizedCoordsWithGradientsAndNormals(resolution,bLooped)
+function Path:getNormalizedCoordsWithGradientsAndNormals(resolution,bLooped)
 	local coords = {}
 	
 	local prev_normal = vector.new(0,1,0)
@@ -68,10 +68,51 @@ function Spline:getNormalizedCoordsWithGradientsAndNormals(resolution,bLooped)
 			normal = prev_normal
 		end
 		
-		prev_normal = normal --I should really be using a Rotation Minimising Frame algorithm ...but meh
+		prev_normal = normal
 		table.insert(coords,{pos=pos,gradient=gradient,normal=normal})
 	end
 	return coords
+end
+
+function Path:getRMF(resolution,bLooped)
+	local frames = {}
+	frames[1]=self:getFrenetFrame(0,bLooped)
+	
+	for t0=0,self.total_spline_length,resolution do
+		local x0 = frames[#frames]
+		local t1 = t0 + resolution
+		if(t1>self.total_spline_length) then
+			break
+		end
+		local x1 = self:getFrenetFrame(t1,bLooped)
+		
+		local v1 = x1.pos - (x0.pos);
+		local c1 = v1:dot(v1);
+		local riL = x0.rotationalAxis - (v1*( 2/c1 * v1:dot(x0.rotationalAxis) ));
+		local tiL = x0.gradient - (v1*( 2/c1 * v1:dot(x0.gradient) ));
+
+		v2 = x1.gradient - (tiL);
+		c2 = v2:dot(v2);
+		riN = riL - (v2*( 2/c2 * v2:dot(riL) ));
+		siN = x1.gradient:cross(riN);
+		x1.normal = siN;
+		x1.rotationalAxis= riN;
+
+		table.insert(frames,x1)
+	end
+	return frames
+end
+
+function Path:getFrenetFrame(t,bLooped)
+	local offset = self:getNormalisedOffset(t)
+	local pos = self:getSplinePoint(offset,bLooped).pos
+	local tangent_1 = self:getSplineGradient(offset,bLooped):normalize()
+	local tangent_2 = self:getSplineSecondDerivative(offset, bLooped) + tangent_1
+	local rotationalAxis = tangent_1:cross(tangent_2):normalize()
+	local normal = self:getSplineNormalVector(offset,bLooped)
+	
+	--return {pos=pos,gradient=tangent_1,normal=normal,rotationalAxis=rotationalAxis,t=offset}
+	return {pos=pos,gradient=tangent_1,normal=normal,rotationalAxis=rotationalAxis}
 end
 
 return Path

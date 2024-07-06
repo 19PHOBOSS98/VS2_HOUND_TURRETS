@@ -25,7 +25,7 @@ local DroneBaseClassSP = DroneBaseClass:subclass()
 --OVERRIDABLE FUNCTIONS--
 function DroneBaseClassSP:organizeThrusterTable(thruster_table)
 
-	local new_thruster_table = {}
+	local new_thruster_table = thruster_table or {}
 
 	return new_thruster_table
 end
@@ -78,9 +78,10 @@ function DroneBaseClassSP:getThrusterTable()
 		
 		local radius = vector.new(thruster.pos.x,thruster.pos.y,thruster.pos.z) - vector.new(0.5,0.5,0.5) -- tournament 1.1.0 beta 4.1 has the thruster pos value off by 0.5
 		
-		local direction = vector.new(thruster.force.x,thruster.force.y,thruster.force.z):normalize()
+		local force = vector.new(thruster.force.x,thruster.force.y,thruster.force.z)
+		local direction = force:normalize()
 		
-		thruster_table[1+#thruster_table] = {direction=direction,radius=radius}
+		thruster_table[1+#thruster_table] = {direction=direction,radius=radius,base_force=force:length()}
 		
 	end
 	--[[
@@ -93,7 +94,6 @@ function DroneBaseClassSP:getThrusterTable()
 end
 
 function DroneBaseClassSP:buildJacobianTranspose(thruster_table)
-	local thruster_constants = self.ship_constants.MOD_CONFIGURED_THRUSTER_SPEED*self.ship_constants.THRUSTER_TIER
 	local inverse_new_default_ship_orientation = self.ship_constants.DEFAULT_NEW_LOCAL_SHIP_ORIENTATION:inv()
 	local jacobian_transpose = {}
 
@@ -102,25 +102,25 @@ function DroneBaseClassSP:buildJacobianTranspose(thruster_table)
 		dir = vector.new(dir.x,dir.y,dir.z)
 		local r = v.radius
 		r = vector.new(r.x,r.y,r.z)
+		local base_thrust = v.base_force
 		local new_dir = inverse_new_default_ship_orientation:rotateVector3(dir)
 		local new_r = inverse_new_default_ship_orientation:rotateVector3(r)
-		local force = new_dir*thruster_constants
-		local torque = utilities.round_vector3(new_r:cross(new_dir)*thruster_constants)
-		
+		local force = new_dir*base_thrust
+		local torque = utilities.round_vector3(new_r:cross(force))
 		jacobian_transpose[i] = {
-			max(0,force.x==0 and 0 or 1/force.x), --positive
-			abs(min(0,force.x==0 and 0 or 1/force.x)),--negative
-			max(0,force.y==0 and 0 or 1/force.y),
-			abs(min(0,force.y==0 and 0 or 1/force.y)),
-			max(0,force.z==0 and 0 or 1/force.z),
-			abs(min(0,force.z==0 and 0 or 1/force.z)),
+			max(0,force.x==0 and 0 or force.x), --positive
+			abs(min(0,force.x==0 and 0 or force.x)),--negative
+			max(0,force.y==0 and 0 or force.y),
+			abs(min(0,force.y==0 and 0 or force.y)),
+			max(0,force.z==0 and 0 or force.z),
+			abs(min(0,force.z==0 and 0 or force.z)),
 		
-			max(0,torque.x==0 and 0 or 1/torque.x),
-			abs(min(0,torque.x==0 and 0 or 1/torque.x)),
-			max(0,torque.y==0 and 0 or 1/torque.y),
-			abs(min(0,torque.y==0 and 0 or 1/torque.y)),
-			max(0,torque.z==0 and 0 or 1/torque.z),
-			abs(min(0,torque.z==0 and 0 or 1/torque.z)),
+			max(0,torque.x==0 and 0 or torque.x),
+			abs(min(0,torque.x==0 and 0 or torque.x)),
+			max(0,torque.y==0 and 0 or torque.y),
+			abs(min(0,torque.y==0 and 0 or torque.y)),
+			max(0,torque.z==0 and 0 or torque.z),
+			abs(min(0,torque.z==0 and 0 or torque.z)),
 		}
 	end
 
@@ -140,7 +140,7 @@ function DroneBaseClassSP:buildJacobianTranspose(thruster_table)
 	for i,v in ipairs(jacobian_transpose) do
 		for ii,vv in ipairs(v) do
 			if(jacobian_transpose[i][ii]~=0)then
-				total[ii] = total[ii]+(1/jacobian_transpose[i][ii])
+				total[ii] = total[ii]+(jacobian_transpose[i][ii])
 			end
 		end
 	end
@@ -148,8 +148,8 @@ function DroneBaseClassSP:buildJacobianTranspose(thruster_table)
 	for i,v in ipairs(jacobian_transpose) do
 		for ii,vv in ipairs(v) do
 			if(jacobian_transpose[i][ii]~=0) then 
-				local thruster_contribution_percentage = (1/jacobian_transpose[i][ii])/total[ii]
-				jacobian_transpose[i][ii] = jacobian_transpose[i][ii]*thruster_contribution_percentage
+				local thruster_contribution_percentage = (jacobian_transpose[i][ii])/total[ii]
+				jacobian_transpose[i][ii] = thruster_contribution_percentage/jacobian_transpose[i][ii]
 			end
 		end
 	end
@@ -171,8 +171,7 @@ function DroneBaseClassSP:initFlightConstants()
 
 	local JACOBIAN_TRANSPOSE = matrix(self:buildJacobianTranspose(thruster_table))
 	
-	local base_thruster_force = self.ship_constants.MOD_CONFIGURED_THRUSTER_SPEED*self.ship_constants.THRUSTER_TIER--thruster force when powered with a redstone power of 1(from VS2-Tournament code)
-	
+	local minimum_base_thruster_force = 9999999999
 	local minimum_radius_vector = vector.new(99999999,99999999,99999999)
 	local minimum_thruster_direction = vector.new(0,1,0)
 	
@@ -184,13 +183,16 @@ function DroneBaseClassSP:initFlightConstants()
 			minimum_thruster_direction = v.direction
 			minimum_thruster_direction = vector.new(minimum_thruster_direction.x,minimum_thruster_direction.y,minimum_thruster_direction.z)
 		end
+		if(v.base_force<minimum_base_thruster_force) then
+			minimum_base_thruster_force = v.base_force
+		end
 	end
 	
 	local inverse_new_default_ship_orientation = self.ship_constants.DEFAULT_NEW_LOCAL_SHIP_ORIENTATION:inv()
 	local new_min_dir = inverse_new_default_ship_orientation:rotateVector3(minimum_thruster_direction)
 	local new_min_r = inverse_new_default_ship_orientation:rotateVector3(minimum_radius_vector)
 	
-	local max_thruster_force = max_redstone*base_thruster_force
+	local max_thruster_force = max_redstone*minimum_base_thruster_force
 	local max_linear_acceleration = max_thruster_force/ship_mass
 	
 	local torque_saturation = new_min_r:cross(new_min_dir) * max_thruster_force

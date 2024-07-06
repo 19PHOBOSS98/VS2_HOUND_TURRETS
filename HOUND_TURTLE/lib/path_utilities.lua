@@ -1,3 +1,5 @@
+local quaternion = require "lib.quaternions"
+
 local cos = math.cos
 local sin = math.sin
 local pi = math.pi
@@ -26,6 +28,13 @@ function path_utilities.offsetCoords(coords,offset)
 	local coord_i = coords[1]
 	for i,coord in ipairs(coords) do
 		coords[i] = coord+offset
+	end
+end
+
+function path_utilities.rotateCoordsByAxis(coords,axis,angle)
+	local coord_i = coords[1]
+	for i,coord in ipairs(coords) do
+		coords[i] = quaternion.rotateVectorByAxis(coord,axis,angle)
 	end
 end
 

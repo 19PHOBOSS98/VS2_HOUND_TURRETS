@@ -71,22 +71,22 @@ function TenThrusterTemplateHorizontalCompactSP:organizeThrusterTable(thruster_t
 	for i,thruster in pairs(thruster_table) do
 		local dir = thruster.direction
 		local rad = thruster.radius
-		
+
 		local isBow = rad.z > 0
 		local idx_offset = isBow and 0 or 5
 
 		if(dir.z > 0) then--south
-			new_thruster_table[1] = {direction=dir,radius=rad}
+			new_thruster_table[1] = thruster
 		elseif (dir.z < 0) then--north
-			new_thruster_table[6] = {direction=dir,radius=rad}
+			new_thruster_table[6] = thruster
 		elseif (dir.x < 0) then--west
-			new_thruster_table[2+idx_offset] = {direction=dir,radius=rad}
+			new_thruster_table[2+idx_offset] = thruster
 		elseif (dir.x > 0) then--east
-			new_thruster_table[3+idx_offset] = {direction=dir,radius=rad}
+			new_thruster_table[3+idx_offset] = thruster
 		elseif (dir.y > 0) then--up
-			new_thruster_table[4+idx_offset] = {direction=dir,radius=rad}
+			new_thruster_table[4+idx_offset] = thruster
 		elseif (dir.y < 0) then--down
-			new_thruster_table[5+idx_offset] = {direction=dir,radius=rad}
+			new_thruster_table[5+idx_offset] = thruster
 		end
 	end
 

@@ -303,6 +303,7 @@ function HoundTurretBase:activateAllGuns(index,toggle)
 	end
 	self:onGunsActivation()
 end
+
 --custom--
 
 
@@ -448,16 +449,16 @@ function HoundTurretBase:overrideShipFrameCustomFlightLoopBehavior()
 					
 				end
 			end
-
+			
 			local aiming_vector = bullet_convergence_point:sub(self.ship_global_position):normalize()
 
 			self.target_rotation = quaternion.fromToRotation(self.target_rotation:localPositiveY(),aiming_vector)*self.target_rotation
 			
 			--positioning
 			if (self.remoteControlManager.rc_variables.dynamic_positioning_mode) then
-			self:debugProbe({
+			--[[self:debugProbe({
 					target_global_position=self.target_global_position,
-					target_aim_position=target_aim_position})
+					target_aim_position=target_aim_position})]]--
 				if (self.remoteControlManager.rc_variables.hunt_mode) then
 					
 					

@@ -64,7 +64,7 @@ function BodySegmentDrone:initializeShipFrameClass(instance_configs)
 	configs.rc_variables.run_mode = false
 
 	self:setShipFrameClass(configs)
-	--self.ShipFrame:setTargetMode(false,"SHIP")
+	self.ShipFrame:setTargetMode(false,"SHIP")
 	
 end
 
@@ -81,22 +81,33 @@ function BodySegmentDrone:setGapLength(new_value)
 	self.rc_variables.gap_length = tonumber(new_value)
 end
 
+function BodySegmentDrone:addTargetSpatial(spatial)
+	--print(textutils.serialize(spatial))
+	self.saved_ship_spatials = self.saved_ship_spatials or {}
+	table.insert(self.saved_ship_spatials,1,spatial)
+end
+
+function BodySegmentDrone:droneCustomFlightLoopBehavior()
+end
 --custom--
 
 
 --overridden functions--
 function BodySegmentDrone:overrideShipFrameCustomProtocols()
-	local ptd = self
+	local bsd = self
 	function self.ShipFrame:customProtocols(msg)
 		local command = msg.cmd
 		command = command and tonumber(command) or command
 		case =
 		{
 		["segment_delay"] = function (arguments)
-			ptd:setSegmentDelay(arguments)
+			bsd:setSegmentDelay(arguments)
 		end,
 		["gap_length"] = function (arguments)
-			ptd:setGapLength(arguments)
+			bsd:setGapLength(arguments)
+		end,
+		["add_target_spatial"] = function (arguments)
+			bsd:addTargetSpatial(arguments)
 		end,
 		["HUSH"] = function (args) --kill command
 			self:resetRedstone()
@@ -117,26 +128,26 @@ function BodySegmentDrone:overrideShipFrameCustomProtocols()
 end
 
 function BodySegmentDrone:overrideShipFrameGetCustomSettings()
-	local ptd = self
+	local bsd = self
 	function self.ShipFrame.remoteControlManager:getCustomSettings()
 		return {
-			segment_delay = ptd.rc_variables.segment_delay,
-			gap_length = ptd.rc_variables.gap_length,
-			group_id = ptd.rc_variables.group_id,
-			segment_number = ptd.rc_variables.segment_number,
+			segment_delay = bsd.rc_variables.segment_delay,
+			gap_length = bsd.rc_variables.gap_length,
+			group_id = bsd.rc_variables.group_id,
+			segment_number = bsd.rc_variables.segment_number,
 		}
 	end
 end
 
 function BodySegmentDrone:overrideShipFrameCustomPreFlightLoopBehavior()
-	local ptd = self
+	local bsd = self
 	function self.ShipFrame:customPreFlightLoopBehavior()
-		ptd.saved_alignment_vectors = {self.ship_rotation:localPositiveZ()}
+		bsd.saved_ship_spatials = {{position=self.ship_global_position,orientation=self.ship_rotation}}
 	end
 end
 
 function BodySegmentDrone:overrideShipFrameCustomFlightLoopBehavior()
-	local ptd = self
+	local bsd = self
 	function self.ShipFrame:customFlightLoopBehavior()
 		--[[
 		useful variables to work with:
@@ -150,33 +161,66 @@ function BodySegmentDrone:overrideShipFrameCustomFlightLoopBehavior()
 		--term.setCursorPos(1,1)
 				
 		--self:debugProbe({"debugging drone: ",self.ship_constants.DRONE_ID})
-
+		bsd:droneCustomFlightLoopBehavior()
 		if (not self.remoteControlManager.rc_variables.run_mode) then
-			return;
+			return
+		end
+
+		if (#bsd.saved_ship_spatials < bsd.rc_variables.segment_delay) then
+			return
+		end
+
+		local spatials = bsd.saved_ship_spatials[#bsd.saved_ship_spatials]
+		if (spatials == nil) then
+			return
+		end
+
+		self.target_global_position = spatials.position
+		self.target_rotation = spatials.orientation
+
+		while (#bsd.saved_ship_spatials>bsd.rc_variables.segment_delay) do
+			table.remove(bsd.saved_ship_spatials)
+		end
+		
+		--[[
+			BodySegmentDrone now listens to the head drone's target spatials over rednet for more precise flight.
+		]]--
+		--[[
+		if(#bsd.saved_ship_spatials == 0) then
+			bsd.saved_ship_spatials = {{position=self.target_global_position,orientation=self.target_rotation}}
 		end
 
 		local leader = self.sensors.orbitTargeting:getTargetSpatials()
-		local actual_leader_orientation = quaternion.fromRotation(leader.orientation:localPositiveZ(),45)*leader.orientation
-		local new_leader_left_vector = actual_leader_orientation:localPositiveZ()
+		local leader_pos = leader.position
+		local leader_rot = leader.orientation
+		local distance = (leader_pos - bsd.saved_ship_spatials[1].position):length()
 		
-		local chain_link_pos = leader.position + actual_leader_orientation:localPositiveX() * -ptd.rc_variables.gap_length
-		self.target_global_position = flight_utilities.adjustOrbitRadiusPosition(self.target_global_position,chain_link_pos,ptd.rc_variables.gap_length)
-
-		table.insert(ptd.saved_alignment_vectors,1,new_leader_left_vector)
-
-		if (#ptd.saved_alignment_vectors>ptd.rc_variables.segment_delay) then
-			table.remove(ptd.saved_alignment_vectors)
+		if (distance < bsd.rc_variables.gap_length) then
+			return
 		end
-
-		if (self.position_error:length()<5) then
-			local leader_left_vector = ptd.saved_alignment_vectors[#ptd.saved_alignment_vectors]
-			local movement_vector = (chain_link_pos - self.ship_global_position):normalize()
-			--self.target_rotation = quaternion.fromToRotation(self.target_rotation:localPositiveZ(), leader_left_vector)*self.target_rotation
-			--self.target_rotation = quaternion.fromToRotation(self.target_rotation:localPositiveX(), movement_vector)*self.target_rotation
+		
+		table.insert(bsd.saved_ship_spatials,1,{position=leader_pos,orientation=leader_rot})
+		
+		if (#bsd.saved_ship_spatials < bsd.rc_variables.segment_delay) then
+			return
 		end
+		local spatials = bsd.saved_ship_spatials[#bsd.saved_ship_spatials]
+		local actual_leader_orientation = bsd:getCustomLeaderOrientation(spatials.orientation)
+		self.target_global_position = spatials.position
+		self.target_rotation = actual_leader_orientation
+
+		if (#bsd.saved_ship_spatials>bsd.rc_variables.segment_delay) then
+			table.remove(bsd.saved_ship_spatials)
+		end
+		]]--
+		
 	end
 end
 
+function BodySegmentDrone:getCustomLeaderOrientation(leader_orientation)
+	leader_orientation = quaternion.new(leader_orientation[1],leader_orientation[2],leader_orientation[3],leader_orientation[4])
+	return quaternion.fromRotation(leader_orientation:localPositiveY(),45)*leader_orientation
+end
 
 function BodySegmentDrone:initCustom(custom_config)
 	self.rc_variables.segment_delay = custom_config.segment_delay or 30
@@ -195,7 +239,7 @@ function BodySegmentDrone:init(instance_configs)
 	self:overrideShipFrameCustomPreFlightLoopBehavior()
 	self:overrideShipFrameCustomFlightLoopBehavior()
 
-	body_segment_custom_config = instance_configs.body_segment_custom_config or {}
+	local body_segment_custom_config = instance_configs.body_segment_custom_config or {}
 
 	self.rc_variables = instance_configs.rc_variables
 
