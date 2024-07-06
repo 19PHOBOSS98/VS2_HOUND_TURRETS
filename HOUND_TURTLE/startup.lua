@@ -10,7 +10,7 @@ while true do
 	else
 		print("install side components (ship-radar and ship-reader blocks)...")
 	end]]--
-	local radar = { peripheral.find("sp_radar") }
+	--[[local radar = { peripheral.find("sp_radar") }
 	local goggle_port = { peripheral.find("goggle_link_port") }
 	if (#radar>0 and #goggle_port>0) then
 		print("starting...")
@@ -18,6 +18,18 @@ while true do
 		break
 	else
 		print("install side components (radar and goggle_port blocks)...")
+	end]]--
+	local radar = { peripheral.find("sp_radar") }
+	if (#radar>0) then
+		print("Ship ID:",ship.getId()," starting ...")
+		shell.run("firmwareScript.lua")
+		break
+	else
+		print("install side components (radar block)...")
 	end
 	os.sleep(1)
 end
+--[[
+print("starting...")
+shell.run("firmwareScript.lua")
+]]--
