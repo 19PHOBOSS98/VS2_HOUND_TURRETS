@@ -1,0 +1,6 @@
+activeLow:true,
+files:[geo_flare_mirror_003],
+move:[-5,10,-5],
+pRotatePivot:[0.5,0.5,0.5],
+pRotate:[0.853,-0.146,0.353,0.353],
+pMove:[15,-10,0]

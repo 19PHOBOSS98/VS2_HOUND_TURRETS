@@ -1,0 +1,6 @@
+activeLow:true,
+files:[geo_flare_mirrors_001],
+move:[-1,-1,-1],
+pSpinPivot:[0.5,0.5,0.5],
+pSpinAxis:[0,1,0],
+pSpinSpeed:180

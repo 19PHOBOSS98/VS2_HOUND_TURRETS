@@ -1,0 +1,6 @@
+activeLow:true,
+files:[geo_flare_beam_arm_off_001],
+move:[0,-15,-1],
+rotate:90,
+pRotatePivot:[0.5,-11.5,0.5],
+pRotate:[0,0,-21.31]
