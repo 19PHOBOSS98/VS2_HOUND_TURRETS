@@ -1,2 +1,3 @@
 activeLow:true,
-files:[geo_flare_off,geo_flare_on]
+files:[geo_flare_off,geo_flare_on],
+loop:false
